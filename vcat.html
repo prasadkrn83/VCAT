@@ -10,10 +10,41 @@
 <body>
         <div class="speech">
           <h3>Voice Controlled Accessibility and Testing Tool</h3>
-            <textarea cols="100" rows="20" id="voiceinput" placeholder="Speak"></textarea>
-            
+            <button id="refreshbtn">Refresh Tab List</button>
+            <select id="tabs"></select>
+            <br>
+            <br>
+            <select id="actions">
+                <option value="0">--Select Action--</option>
+                <option value="select">Select</option>
+                <option value="click">Click</option>
+            </select>
+            &nbsp;&nbsp;
+            <select id="types1">
+                <option value="0">--Select Input--</option>
+                <option value="all">All</option>
+                <option value="button">Button</option>
+                <option value="a">Link</option>
+            </select>
+            &nbsp;&nbsp;
+            <select id="types2">
+                <option value="0">--Select Input--</option>
+                <option value="button">Button</option>
+                <option value="a">Link</option>
+            </select>
+            &nbsp;&nbsp;
+            <select id="iden">
+                <option value="0">--Select Identifier--</option>
+                <option value="button">Label</option>
+                <option value="xpath">Xpath</option>
+            </select>
+            &nbsp;&nbsp;
+            <input id="idenstr"/>
+            &nbsp;&nbsp;
+            <button id="go">Go</button>
         </div>
 </body>
+<script src="jquery-3.3.1.min.js"></script>
 <script src="vcat.js"></script>
 
 </html>
