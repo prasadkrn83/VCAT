@@ -15,7 +15,9 @@ chrome.runtime.onMessage.addListener(
       var identifier="";
       if(action =="select"){
         if(type1=="all"){
-          identifier =type2;
+          if(type2=="links"){
+            identifier ="a";
+          }
           $(identifier).css({"border-color": "red", 
     "border-width":"3px", 
     "border-style":"solid"});
@@ -30,7 +32,9 @@ chrome.runtime.onMessage.addListener(
         }
       }else if(action =="click"){
           identifier = type2;
-         $(identifier).filter(function(index) { return $(this).text().indexOf(idenstr)>0; })[0].click();
+         $(identifier).filter(function(index) { 
+          console.log($(this).text());
+          return $(this).text().indexOf(idenstr)>0; })[0].click();
       }
 
 //          $('a').filter(function(idenstr){
@@ -41,9 +45,5 @@ chrome.runtime.onMessage.addListener(
 
 
       //if (request.greeting == "hello")
-        sendResponse({farewell: "goodbye"});
+        sendResponse({message: "success"});
     });
-
-$.expr[':'].textEquals = function(a, i, m) {
-    return $(a).text().match("^" + m[3] + "$");
-};

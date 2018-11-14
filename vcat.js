@@ -3,13 +3,12 @@
 // found in the LICENSE file.
 
 'use strict';
-
-window.onload = function() {
-    navigator.webkitGetUserMedia({ audio: true, video: true }, function() {
-        console.log('ok');
+ navigator.webkitGetUserMedia({ audio: true}, function() {
+        alert('ok');
     }, function(e) {
-        console.log('webcam not ok');
+        alert('not ok--'+e);
     });
+
     $('#actions').hide();
     $('#types1').hide();
     $('#types2').hide();
@@ -149,11 +148,9 @@ $("#iden").change(function() {
         var message = { action: action,type1:type1,type2:type2 ,idenstr:idenstr};
         chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
             chrome.tabs.sendMessage(parseInt($("#tabs").val()),message , function(response) {
-                alert(response);
+                console.log(response.message);
             });
         });
 
     });
 
-
-}

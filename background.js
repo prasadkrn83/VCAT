@@ -1,71 +1,69 @@
-var recognition;
 chrome.runtime.onInstalled.addListener(function() {
-//this method is called when the extention is installed.
-//alert("installed");
+    //this method is called when the extention is installed.
+    //alert("installed");
 });
 
-chrome.runtime.onStartup.addListener(function (){
-    recognition = new webkitSpeechRecognition();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = "en-US";
-    recognition.start();
+chrome.windows.onCreated.addListener(function() {
+
+    openOptions();
+
 });
 
+var hello = function(tag) {
+    alert("select button");
+}
+
+function openOptions() {
+chrome.runtime.openOptionsPage();
+chrome.runtime.cl
+
+    // chrome.app.window.create('vcat.html', {
+    //     bounds: {
+    //         'width': 1024,
+    //         'height': 768
+    //     }
+    // });
+}
 
 
-chrome.tabs.onCreated.addListener(function (tabs){
-//alert("new tab opened");
 
-// setTimeout(() => {
-//     navigator.mediaDevices.getUserMedia({ audio: true })
-//     .catch(function() {
-        
-//     });
-// }, 100);
+chrome.tabs.onCreated.addListener(function(tabs) {
 
+    if (annyang && !annyang.isListening()) {
+        // alert('hello...');
 
-    if ("webkitSpeechRecognition" in window) {
-        // var recognition = new webkitSpeechRecognition();
-        // recognition.continuous = true;
-        // recognition.interimResults = true;
-        // recognition.lang = "en-US";
-        // recognition.start();
-        var interim_transcript = '';
-        var final_transcript = '';
-       // Set up 
-        // recognition.onstart = function(event){ 
-        //     alert("onstart", event);
-        // } 
-   
-        // Process parsed result
-        recognition.onresult = function(event){ 
-    
-        
-            for (var i = event.resultIndex; i < event.results.length; ++i) {
-                // Verify if the recognized text is the last with the isFinal property
-                if (event.results[i].isFinal) {
-                    final_transcript = event.results[i][0].transcript;
-                } 
-            }
-            
-           alert("final_transcript = "+final_transcript);
-        }
-   
-        // Handle error
-        recognition.onerror = function(event){
-            alert("onerror", event);
-        }
-   
-        // Housekeeping after success or failed parsing
-        recognition.onend = function(){ 
-            alert("onend");
-        }
-    
-    } 
+        // Let's define a command.
+        var commands = {
+            'hi': hello
+        };
+
+        // Add our commands to annyang
+        annyang.addCommands(commands);
+        annyang.start({ autoRestart: true });
+        //alert('hello...');
+
+        annyang.addCallback('soundstart', function() {
+            //alert('sound detected');
+        });
+
+        annyang.addCallback('result', function() {
+            // alert('sound stopped');
+        });
+        annyang.addCallback('result', function(phrases) {
+            console.log("I think the user said: ", phrases[0]);
+            var inputStr  = phrases[0];
+            var res = inputStr.split(" ");
+            var message = { action: res[0],type1:res[1],type2:res[2] ,idenstr:null};
+
+            chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+            chrome.tabs.sendMessage(tabs[0].id,message , function(response) {
+                console.log(response.message);
+            });
+        });
+            //console.log("But then again, it could be any of the following: ", phrases);
+        });
+
+        // Start listening.
+    }
+
 });
-
-
-
-
-
