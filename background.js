@@ -60,7 +60,7 @@ chrome.tabs.onCreated.addListener(function(tabs) {
                 console.log(response.message);
             });
         });
-            //console.log("But then again, it could be any of the following: ", phrases);
+            console.log("But then again, it could be any of the following: ", phrases);
         });
 
         // Start listening.

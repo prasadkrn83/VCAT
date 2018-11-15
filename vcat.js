@@ -4,7 +4,7 @@
 
 'use strict';
  navigator.webkitGetUserMedia({ audio: true}, function() {
-        alert('ok');
+       // alert('ok');
     }, function(e) {
         alert('not ok--'+e);
     });

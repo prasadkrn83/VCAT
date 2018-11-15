@@ -1,12 +1,24 @@
 debugger;
+var scrollingElement ;
 $( document ).ready(function() {
    
+ scrollingElement = (document.scrollingElement || document.body)
 
  
 });
 
+
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
+     // scrollSmoothToBottom(null,true);
+$.toast({
+    heading: 'Command suggestion',
+    text: 'Select all links',
+    icon: 'info'
+});
+
+scrollSmoothToBottom(null,false);
+
       var action = request.action;
       var type1  = request.type1;
       var type2 =  request.type2;
@@ -37,13 +49,35 @@ chrome.runtime.onMessage.addListener(
           return $(this).text().indexOf(idenstr)>0; })[0].click();
       }
 
-//          $('a').filter(function(idenstr){
-//     return this.innerHTML ==idenstr ;
-// })
-
-        
-
-
-      //if (request.greeting == "hello")
         sendResponse({message: "success"});
     });
+
+
+//Require jQuery
+function scrollSmoothToBottom (id,isToend) {
+  var scrollval;
+  if(isToend){
+      scrollval = document.body.scrollHeight;
+  }else{
+      var currentPos = $(window).scrollTop();
+      var halfHeight = $(window).height();
+      scrollval = currentPos + halfHeight;
+   }$(scrollingElement).animate({
+      scrollTop: scrollval//document.body.scrollHeight
+   }, 500);
+}
+
+//Require jQuery
+function scrollSmoothToTop (id,isToTop) {
+   $(scrollingElement).animate({
+      scrollTop: 0
+   }, 500);
+}
+
+function generateToast(message){
+  $.toast({
+    heading: 'Next Command suggestion',
+    text: message,
+    icon: 'info'
+});
+}
