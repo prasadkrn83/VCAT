@@ -1,0 +1,10 @@
+.fldset-class{
+    border: 1.5px red solid;
+     display:inline;
+     padding:1.5px;
+}
+.legend-class{
+    border: 1.5px red solid; 
+    background:white;
+    color:black;
+}
