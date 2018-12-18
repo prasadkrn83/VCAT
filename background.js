@@ -1,3 +1,7 @@
+function message(command,variable){
+    this.command=command;
+    this.variable=variable;
+}
 chrome.runtime.onInstalled.addListener(function() {
     //this method is called when the extention is installed.
     //alert("installed");
@@ -34,29 +38,45 @@ chrome.tabs.onCreated.addListener(function(tabs) {
         var commands = {
             'select all *type': function(type) {
                 console.log('calling from command..select all '+type);
-                performAction('select all '+type);
+                var m = new message('select all $',type);
+                performAction(m);
             },
             'select link *desc': function(desc) {
                 console.log('calling from command..select link '+desc);
-                performAction('select link $ '+desc);
+                var m = new message('select link $',type);
+                performAction(m);
             },
-            'click link number *num': function(num){
+            'click number  *num': function(num){
 
                 num=(num=='one')?1:num;
-                console.log('calling from command..click link number '+num);
-                performAction('click link number '+num);
+                console.log('calling from command..click link '+num);
+                var m = new message('click number $',num);
+                performAction(m);
+                
             },
+            'select number *num': function(num){
+
+                num=(num=='one')?1:num;
+                console.log('calling from command..select number '+num);
+                var m = new message('select number $',num);
+                performAction(m);
+                
+            }
+            ,
             'click link *desc':function(desc){
                 console.log('calling from command..click link '+desc);
-                performAction('click link $ '+desc);
-            },
-            'scroll page *direction once':function(direction){
-                console.log('calling from command..scroll page '+direction);
-                performAction('scroll page '+direction +' once');
+                var m = new message('click link $',type);
+                performAction(m);
             },
             'scroll page *direction':function(direction){
                 console.log('calling from command..scroll page '+direction);
-                performAction('scroll page $ '+direction);
+                var m = new message('scroll page $',direction);
+                performAction(m);
+            },
+            'enter value *value':function(value){
+              console.log('calling from command..enter value '+value);
+                var m = new message('enter value $',value);
+                performAction(m);  
             }
         };
 
@@ -87,28 +107,27 @@ chrome.tabs.onCreated.addListener(function(tabs) {
                     });
                 }
             }); */ 
-            performAction(inputStr);
+            console.log("But then again, it could be any of the following: ", phrases);
+            console.log("No command matched yet..");
+            //performAction(inputStr);
           
             /*chrome.tabs.query({ active: true, windowType:"normal",currentWindow: true }, function(tabs) {
                 chrome.tabs.sendMessage(tabs[0].id,message , function(response) {
                     console.log(response.message);
                 });
             });*/
-            console.log("But then again, it could be any of the following: ", phrases);
         });
 
     }
 
 });
 
-function performAction(inputStr){
+function performAction(mess){
 
-    var commandStr = inputStr.split(" ");
-    var idenStr=null;
-    if(commandStr.length>3){
-        idenStr=commandStr[3];
-    }
+    var commandStr = mess.command.split(" ");
+    idenStr=mess.variable;
     console.log(commandStr);
+    console.log(idenStr);
       
      var message = { action: commandStr[0],type1:commandStr[1],type2:commandStr[2] ,idenstr:idenStr};
             chrome.tabs.query({ active: true,currentWindow: true }, function(tabs)             {

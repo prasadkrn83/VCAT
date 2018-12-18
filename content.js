@@ -22,20 +22,23 @@ $.toast({
       var type1  = request.type1;
       var type2 =  request.type2;
       var idenstr  =  request.idenstr;
+      var identifier=getIdentifierString(idenstr);
+      var selectedItem;
+      var selectedIdentifier;
 
-      var identifier="";
+      chrome.storage.local.get('selectedItem', function (result) {
+        selectedItem = result.selectedItem;
+      });
+      chrome.storage.local.get('selectedIdentifier', function (result) {
+        selectedIdentifier = result.selectedIdentifier;
+      });
+      
       var i=0;
       if(action =="select"){
         if(type1=="all"){
-          if(type2=="links"){
-            identifier ="a";
-          }else if (type2=="drop down" || type2 == "list"){
-            identifier="select";
-          }else if(type2="text input"){
-            identifier="input[@type=\"text\"]";
-          }else if(type2="radio button"){
-            identifier="'input:radio'";
-          }
+          chrome.storage.local.set({"selectedIdentifier": identifier}, function() {
+          console.log('Value is set to ' + identifier);
+        });
           $(identifier).each(function(index,item){
 
              i++;
@@ -44,28 +47,29 @@ $.toast({
              $("#f"+i).prepend("<legend class='legend-class'>"+i+"</legend>");
        
       });
+        }else if (type1=="number"){
+          identifier='#f'+idenstr+' '+selectedIdentifier;
+          console.log(identifier);
+          var item=$(identifier)[0];
         }else{
-          if(type1=="link"){
-            identifier ="a";
-          }else if (type1=="drop down" || type1 == "list"){
-            identifier="select";
-          }else if(type1="text input"){
-            identifier="input[@type=\"text\"]";
-          }else if(type1="radio button"){
-            identifier="'input:radio'";
-          }
-          $(identifier).filter(function(index) { return $(this).text().toLowerCase().indexOf(idenstr)>0; })[0].css({"border-color": "red", 
-            "border-width":"3px", 
-             "border-style":"solid"});
+         
+          var item = $(identifier).filter(function(index) { return $(this).text().toLowerCase().indexOf(idenstr)>0; })[0];
+          i++;
+          item.wrap("<fieldset id='f"+i+"'class='fldset-class'></fieldset>");
+             $("#f"+i).prepend("<legend class='legend-class'>"+i+"</legend>");
+          chrome.storage.local.set({"selectedItem": item}, function() {
+          console.log('Value is set to ' + item);
+        });
         }
       }else if(action =="click"){
-        if(type1=='link'){
-            if(type2!=null && type2==='number'){
-                identifier='#f'+idenstr+' a';
-                console.log(identifier);
-                $(identifier)[0].click();
-            }else if(type2!=null && type2=='$'){
-               identifier = 'a';
+        if(type1=='number'){
+          identifier='#f'+idenstr+' '+selectedIdentifier;
+          console.log(identifier);
+          $(identifier)[0].click();
+        }
+        else{
+            if(type2!=null && type2=='$'){
+              identifier=getIdentifierString(type1);
                  $(identifier).filter(function(index) { 
                  console.log($(this).text());
                  return $(this).text().toLowerCase().indexOf(idenstr)>0; })[0].click();
@@ -73,13 +77,13 @@ $.toast({
           }
         }else if(action=='scroll'){
           if(type1=='page'){
-            if(type2=='$' && idenstr=='up'){
+            if(type2=='$' && idenstr=='top'){
               scrollSmoothToTop(true); 
-            }else if(type2=='$' &&  idenstr=='down'){
+            }else if(type2=='$' &&  idenstr=='end'){
               scrollSmoothToBottom(true); 
-            }else if(type2=='up' && idenstr=='once'){
+            }else if(type2=='$' && idenstr=='up'){
               scrollSmoothToTop(false); 
-            }else if(type2=='down' &&  idenstr=='once'){
+            }else if(type2=='$' &&  idenstr=='down'){
               scrollSmoothToBottom(false); 
             }
           }
@@ -91,6 +95,8 @@ $.toast({
             openNewBrowser(null);
           }
 
+        }else if(action=="enter" && type1=="value" && selectedItem.is("input:text")){
+            selectedItem.val(identifier);
         }
       
 
@@ -184,3 +190,33 @@ function openNewBrowser(link){
     }
   }
 
+function getIdentifierString(idenstr){
+      var identifier="";
+      
+      if(idenstr=="links"){
+        identifier ="a";
+      }else if (idenstr=="drop down" || idenstr == "list"){
+        identifier="select";
+      }else if(idenstr=="text input"){
+        identifier="input:text";
+      }else if(idenstr=="radio button"){
+        identifier="'input:radio'";
+      }else if(idenstr=="button"){
+        identifier="button";
+      }else{
+        identifier=idenstr;
+      }
+
+      return identifier;
+}
+function maximizeWindow(id){
+  chrome.windows.update(id,{state:"maximized"},function(windowUpdated){
+    console.log("window maximized");
+  });
+}
+
+function minimizeWindow(id){
+  chrome.windows.update(id,{state:"minimized"},function(windowUpdated){
+    console.log("window minimized");
+  });
+}

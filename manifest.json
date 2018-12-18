@@ -3,7 +3,7 @@
   "version": "1.0",
   "description": "Voice Controlled Accessibility and Testing Tool",
   "manifest_version": 2,
-  "permissions": ["activeTab", "declarativeContent", "storage","<all_urls>"],
+  "permissions": ["activeTab", "declarativeContent", "storage","<all_urls>","storage"],
   "options_page": "vcat.html",
   "icons": {
     "16": "images/vcat_icon_16.png",
