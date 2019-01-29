@@ -1,3 +1,5 @@
+var commandsList;
+
 function message(command,variable){
     this.command=command;
     this.variable=variable;
@@ -5,6 +7,18 @@ function message(command,variable){
 chrome.runtime.onInstalled.addListener(function() {
     //this method is called when the extention is installed.
     //alert("installed");
+     commandsList = FuzzySet();
+     commandsList.add("select all links");
+     commandsList.add("select link");
+     commandsList.add("click number");
+     commandsList.add("select number");
+     commandsList.add("click link");
+     commandsList.add("scroll page up");
+     commandsList.add("select page down");
+     
+     
+     
+       
 });
 
 chrome.windows.onCreated.addListener(function() {
@@ -109,6 +123,13 @@ chrome.tabs.onCreated.addListener(function(tabs) {
             }); */ 
             console.log("But then again, it could be any of the following: ", phrases);
             console.log("No command matched yet..");
+            var finalCommand="";
+            for (var i = 0; i < phrases.length; i++) { 
+                finalCommand = matchToCommandList(finalCommand,phrases[i]);
+            }
+
+            annyang.trigger(finalCommand);
+
             //performAction(inputStr);
           
             /*chrome.tabs.query({ active: true, windowType:"normal",currentWindow: true }, function(tabs) {

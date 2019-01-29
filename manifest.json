@@ -3,7 +3,7 @@
   "version": "1.0",
   "description": "Voice Controlled Accessibility and Testing Tool",
   "manifest_version": 2,
-  "permissions": ["activeTab", "declarativeContent", "storage","<all_urls>","storage"],
+  "permissions": ["activeTab", "declarativeContent", "storage","<all_urls>"],
   "options_page": "vcat.html",
   "icons": {
     "16": "images/vcat_icon_16.png",
@@ -13,8 +13,11 @@
   },
   "background":{
     "scripts":[
-      "annyang.min.js",
-      "background.js"
+      "js/annyang.min.js",
+      "js/background.js",
+      "js/compromise.min.js",
+      "js/fuzzyset.js",
+      "js/stopwordsremoval.js"
     ],
     "persistent":false
     
@@ -23,7 +26,7 @@
     {
       "matches": ["*://*/*"],
       "css": ["css/jquery.toast.min.css","css/content.css"],
-      "js": ["jquery-3.3.1.min.js","jquery.toast.min.js","content.js"]
+      "js": ["js/jquery-3.3.1.min.js","js/jquery.toast.min.js","js/content.js"]
     }
   ]
 }
