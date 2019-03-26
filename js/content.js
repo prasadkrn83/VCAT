@@ -65,7 +65,19 @@ $.toast({
         if(type1=='number'){
           identifier='#f'+idenstr+' '+selectedIdentifier;
           console.log(identifier);
-          $(identifier)[0].click();
+          $(identifier)[0].click(function(){
+            var path = getPathTo($(this));
+            alert(path);
+
+          let element = new webelement();
+          element.elementType='button';
+          element.elementXpath='//*[@id="main"]/div[1]/div/ul/li[27]/a';
+          element.elementAction='click';
+
+          sendResponse({message: element});
+
+
+          });
         }
         else{
             if(type2!=null && type2=='$'){
@@ -220,3 +232,21 @@ function minimizeWindow(id){
     console.log("window minimized");
   });
 }
+
+function getPathTo(element) {
+    if (element.id!=='')
+        return 'id("'+element.id+'")';
+    if (element===document.body)
+        return element.tagName;
+
+    var ix= 0;
+    var siblings= element.parentNode.childNodes;
+    for (var i= 0; i<siblings.length; i++) {
+        var sibling= siblings[i];
+        if (sibling===element)
+            return getPathTo(element.parentNode)+'/'+element.tagName+'['+(ix+1)+']';
+        if (sibling.nodeType===1 && sibling.tagName===element.tagName)
+            ix++;
+    }
+}
+

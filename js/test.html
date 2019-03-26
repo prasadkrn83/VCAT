@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script type="text/javascript" src="webelement.js"></script>
+	<script type="text/javascript" src="elementstack.js"></script>
+
+	<script type="text/javascript">
+		var tabDataStore = {};
+		let stack = new elementstack();
+
+		tabDataStore['tab_1'] = {
+        	url: "",
+        	stack:stack
+        	//stack:stack
+       	};
+
+		let element = new webelement();
+		element.elementType='button';
+		element.elementXpath='//*[@id="main"]/div[1]/div/ul/li[27]/a';
+		element.elementAction='click';
+
+		//stack.push(element);
+		//stack.push(element);
+
+
+		tabDataStore['tab_1'].url="abc.com";
+		tabDataStore['tab_1'].stack.push(element);
+		console.log(element.toString());
+		console.log(JSON.stringify(element));
+		console.log(JSON.parse(JSON.stringify(element)));
+
+		console.log(stack);
+		console.log(stack.printStack());
+
+		//console.log(stack.toString());
+		console.log(JSON.stringify(stack));
+		console.log(JSON.parse(JSON.stringify(stack)));
+
+
+	</script>
+</head>
+<body>
+
+</body>
+</html>

@@ -13,11 +13,14 @@
   },
   "background":{
     "scripts":[
+      "js/jquery-3.3.1.min.js",
       "js/annyang.min.js",
       "js/background.js",
       "js/compromise.min.js",
       "js/fuzzyset.js",
-      "js/stopwordsremoval.js"
+      "js/stopwordsremoval.js",
+      "js/elementstack.js",
+      "js/webelement.js"
     ],
     "persistent":false
     
@@ -26,7 +29,8 @@
     {
       "matches": ["*://*/*"],
       "css": ["css/jquery.toast.min.css","css/content.css"],
-      "js": ["js/jquery-3.3.1.min.js","js/jquery.toast.min.js","js/content.js"]
+      "js": ["js/jquery-3.3.1.min.js","js/jquery.toast.min.js","js/content.js","js/elementstack.js",
+      "js/webelement.js"]
     }
   ]
 }
