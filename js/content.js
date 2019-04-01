@@ -10,14 +10,7 @@ $( document ).ready(function() {
 
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
-     // scrollSmoothToBottom(null,true);
-$.toast({
-    heading: 'Command suggestion',
-    text: 'Select all links',
-    icon: 'info'
-});
 
-    
       var action = request.action;
       var type1  = request.type1;
       var type2 =  request.type2;
@@ -25,6 +18,7 @@ $.toast({
       var identifier=getIdentifierString(idenstr);
       var selectedItem;
       var selectedIdentifier;
+      var msg="success";
 
       chrome.storage.local.get('selectedItem', function (result) {
         selectedItem = result.selectedItem;
@@ -46,11 +40,14 @@ $.toast({
              $(item).wrap("<fieldset id='f"+i+"'class='fldset-class'></fieldset>");
              $("#f"+i).prepend("<legend class='legend-class'>"+i+"</legend>");
        
-      });
+          });
+          generateToast("Select number *<br>Click number *<br>Open number * in new tab<br>Open number *"+idenstr);
+
         }else if (type1=="number"){
           identifier='#f'+idenstr+' '+selectedIdentifier;
           console.log(identifier);
           var item=$(identifier)[0];
+
         }else{
          
           var item = $(identifier).filter(function(index) { return $(this).text().toLowerCase().indexOf(idenstr)>0; })[0];
@@ -63,21 +60,19 @@ $.toast({
         }
       }else if(action =="click"){
         if(type1=='number'){
-          identifier='#f'+idenstr+' '+selectedIdentifier;
+          identifier='#f'+idenstr;
           console.log(identifier);
-          $(identifier)[0].click(function(){
-            var path = getPathTo($(this));
-            alert(path);
+          var path = getPathToElement($(identifier+" "+$(identifier).children()[1].localName
+),idenstr);
+          
 
           let element = new webelement();
-          element.elementType='button';
-          element.elementXpath='//*[@id="main"]/div[1]/div/ul/li[27]/a';
+          element.elementType=getIdentifiedElement($(identifier).children()[1].localName);
+          element.elementXpath=path;
           element.elementAction='click';
 
-          sendResponse({message: element});
-
-
-          });
+          msg= element;
+          $(identifier).children()[1].click();
         }
         else{
             if(type2!=null && type2=='$'){
@@ -112,7 +107,7 @@ $.toast({
         }
       
 
-        sendResponse({message: "success"});
+        sendResponse({message: msg});
     });
 
 
@@ -148,6 +143,7 @@ function generateToast(message){
   $.toast({
     heading: 'Next Command suggestion',
     text: message,
+    hideAfter : 5000,
     icon: 'info'
 });
   }
@@ -212,7 +208,9 @@ function getIdentifierString(idenstr){
       }else if(idenstr=="text input"){
         identifier="input:text";
       }else if(idenstr=="radio button"){
-        identifier="'input:radio'";
+        identifier="input:radio";
+      }else if(idenstr=="check box"){
+        identifier="input:checkbox";
       }else if(idenstr=="button"){
         identifier="button";
       }else{
@@ -221,6 +219,30 @@ function getIdentifierString(idenstr){
 
       return identifier;
 }
+
+function getIdentifiedElement(idenstr){
+      var identifier="";
+      
+      if(idenstr=="a"){
+        identifier ="link";
+      }else if (idenstr=="select"){
+        identifier="drop down";
+      }else if(idenstr=="input:text"){
+        identifier="input field";
+      }else if(idenstr=="input:radio"){
+        identifier="radio";
+      }else if(idenstr=="input:checkbox"){
+        identifier="check box";
+      }else if(idenstr=="button"){
+        identifier="button";
+      }else{
+        identifier=idenstr;
+      }
+
+      return identifier;
+}
+
+
 function maximizeWindow(id){
   chrome.windows.update(id,{state:"maximized"},function(windowUpdated){
     console.log("window maximized");
@@ -233,19 +255,29 @@ function minimizeWindow(id){
   });
 }
 
-function getPathTo(element) {
-    if (element.id!=='')
-        return 'id("'+element.id+'")';
+function getPathToElement(elem,index){
+    var element = elem;
+    element[0].previousElementSibling.remove();
+    element.unwrap();
+    var xpath=getXPathTo(element[0]);
+    element.wrap("<fieldset id='f"+index+"'class='fldset-class'></fieldset>");
+    $("#f"+index).prepend("<legend class='legend-class'>"+index.substring(1)+"</legend>");
+    return xpath;
+}
+
+function getXPathTo(element) {
+    if (element.id!=='' && !(element.id===undefined))
+        return '//*[@id="'+element.id+'"]';
     if (element===document.body)
-        return element.tagName;
+        return element.localName;
 
     var ix= 0;
     var siblings= element.parentNode.childNodes;
     for (var i= 0; i<siblings.length; i++) {
         var sibling= siblings[i];
         if (sibling===element)
-            return getPathTo(element.parentNode)+'/'+element.tagName+'['+(ix+1)+']';
-        if (sibling.nodeType===1 && sibling.tagName===element.tagName)
+            return getXPathTo(element.parentNode)+'/'+element.localName+'['+(ix+1)+']';
+        if (sibling.nodeType===1 && sibling.localName===element.localName)
             ix++;
     }
 }

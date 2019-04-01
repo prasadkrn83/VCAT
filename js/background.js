@@ -1,7 +1,13 @@
 var commandsList;
 var tabDataStore = {};
-     
+ var msg;   
+ var mismatchCount=0; 
+ var currentTabId;
 
+function callAnnyangCommand(command){
+    msg=command;
+   
+}
 
 function message(command,variable){
     this.command=command;
@@ -10,9 +16,16 @@ function message(command,variable){
 chrome.runtime.onInstalled.addListener(function() {
     //this method is called when the extention is installed.
     //alert("installed");
+        commandsList = FuzzySet();
+        commandsList.add("select all links");
+        commandsList.add("select link");
+        commandsList.add("click number");
+        commandsList.add("select number");
+        commandsList.add("click link");
+        commandsList.add("scroll page up");
+        commandsList.add("select page down");
+        commandsList.add("complete test case");
 
-     
-       
 });
 
 chrome.windows.onCreated.addListener(function() {
@@ -26,8 +39,7 @@ chrome.windows.onCreated.addListener(function() {
         commandsList.add("click link");
         commandsList.add("scroll page up");
         commandsList.add("select page down");
-
-   
+        commandsList.add("complete test case");
 
 });
 
@@ -39,14 +51,6 @@ function openOptions() {
 chrome.runtime.openOptionsPage();
 
     alert(commandsList);
-//chrome.runtime.cl
-
-    // chrome.app.window.create('vcat.html', {
-    //     bounds: {
-    //         'width': 1024,
-    //         'height': 768
-    //     }
-    // });
 }
 
 
@@ -54,25 +58,44 @@ chrome.tabs.onRemoved.addListener(function (tabId) {
     delete tabDataStore['tab_' + tabId];
 });
 
-chrome.tabs.onUpdated.addListener(function (tabId , info) {
+/*chrome.tabs.onUpdated.addListener(function (tabId , info) {
   if (info.status === 'complete') {
     tabDataStore['tab_' + tabId].url.push(tab.url);
+    annyang.trigger(msg);
   }
 
-  /* var url=tabDataStore['tab_' + tabId].url[0];
-              var stack =tabDataStore['tab_' + tabId].stack;
-              callVcatService(url,stack.getAllElements());
-*/});
+  });*/
 
+chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+   //alert(changeInfo.url);
+
+   if (changeInfo.status === "complete") {
+    chrome.extension.getExtensionTabs();
+    tabDataStore['tab_' + tabId].url=tab.url;
+    //annyang.trigger(msg);
+    /*var m = new message('select all $','links');
+    performAction(m);
+    var m = new message('click number $','1');
+    performAction(m);
+  */}
+}); 
+chrome.tabs.onHighlighted.addListener(function (tabs){
+    currentTabId = tabs.tabIds[0];
+});
 chrome.tabs.onCreated.addListener(function(tabs) {
+
+        commandsList = FuzzySet();
+        commandsList.add("select all links");
+        commandsList.add("select link");
+        commandsList.add("click number");
+        commandsList.add("select number");
+        commandsList.add("click link");
+        commandsList.add("scroll page up");
+        commandsList.add("select page down");
+        commandsList.add("complete test case");
 
     let stack1 = new elementstack();
 
-  /*  let element = new webelement();
-        element.elementType='button';
-        element.elementXpath='//*[@id="main"]/div[1]/div/ul/li[27]/a';
-        element.elementAction='click';
-    stack1.push(element);*/
      tabDataStore['tab_' + tabs.id] = {
         url: [],
         stack:stack1
@@ -81,17 +104,17 @@ chrome.tabs.onCreated.addListener(function(tabs) {
     if (annyang && !annyang.isListening()) {
      
         var commands = {
-            'select all *type': function(type) {
+            'computer select all *type': function(type) {
                 console.log('calling from command..select all '+type);
                 var m = new message('select all $',type);
                 performAction(m);
             },
-            'select link *desc': function(desc) {
+            'computer select link *desc': function(desc) {
                 console.log('calling from command..select link '+desc);
                 var m = new message('select link $',type);
                 performAction(m);
             },
-            'click number  *num': function(num){
+            'computer click number *num': function(num){
 
                 num=(num=='one')?1:num;
                 console.log('calling from command..click link '+num);
@@ -99,7 +122,7 @@ chrome.tabs.onCreated.addListener(function(tabs) {
                 performAction(m);
                 
             },
-            'select number *num': function(num){
+            'computer select number *num': function(num){
 
                 num=(num=='one')?1:num;
                 console.log('calling from command..select number '+num);
@@ -108,90 +131,93 @@ chrome.tabs.onCreated.addListener(function(tabs) {
                 
             }
             ,
-            'click link *desc':function(desc){
+            'computer click link *desc':function(desc){
                 console.log('calling from command..click link '+desc);
                 var m = new message('click link $',type);
                 performAction(m);
             },
-            'scroll page *direction':function(direction){
+            'computer scroll page *direction':function(direction){
                 console.log('calling from command..scroll page '+direction);
                 var m = new message('scroll page $',direction);
                 performAction(m);
             },
-            'enter value *value':function(value){
+            'computer enter value *value':function(value){
               console.log('calling from command..enter value '+value);
                 var m = new message('enter value $',value);
                 performAction(m);  
             },
-            'complete test case':function(){
+            'computer complete test case':function(){
               console.log('calling from command..complete test case ');
-              var url=tabDataStore['tab_' + tab.id].url[0];
-              var stack =tabDataStore['tab_' + tab.id].stack;
-              callVcatService(url,stack);
+              var tabId=currentTabId;
+
+              var url=tabDataStore['tab_' + tabId].url;
+              var stack =tabDataStore['tab_' + tabId].stack;
+              callVcatService(url,stack.getAllElements());
               delete tabDataStore['tab_' + tabId];
               stack = new elementstack();
-              tabDataStore['tab_' + tab.id] = {
-                url: [],
+              tabDataStore['tab_' + tabId] = {
+                url: url,
                 stack:stack
               };
+            
             }
-
 
         };
 
         annyang.addCommands(commands);
+        annyang.debug();
+        //annyang.setLanguage('en-IN');
         annyang.start({ autoRestart: true ,continuous:false});
      
         annyang.addCallback('soundstart', function() {
             console.log('sound detected');
         });
 
-        annyang.addCallback('result', function() {
-             console.log('sound stopped');
-        });
+      /*  annyang.addCallback('result',  function(phrases) {
+            console.log('Speech recognized. Possible sentences said:');
+            console.log(phrases);
+        });*/
         annyang.addCallback('resultNoMatch', function(phrases) {
+
             console.log("I think the user said: ", phrases[0]);
             var inputStr  = phrases[0];
             console.log('called here...');
-          /*  var res = inputStr.split(" ");
-      
-            var message = { action: res[0],type1:res[1],type2:res[2] ,idenstr:null};
-            chrome.tabs.query({ active: true,currentWindow: true }, function(tabs)             {
-                if((typeof tabs[0] === 'undefined') || (typeof tabs[0].title === 'undefined')){
-                    console.log('not a webpage');
-                    return;
-                }else{
-                    chrome.tabs.sendMessage(tabs[0].id,message , function(response) {
-                        console.log(response.message);
-                    });
-                }
-            }); */ 
             console.log("But then again, it could be any of the following: ", phrases);
             console.log("No command matched yet..");
+            if(mismatchCount==3){
+                mismatchCount=0;
+                return;
+            }
+
+            for (var i = 0; i < phrases.length; i++) { 
+                phrases[i] = phrases[i].removeStopWords();
+            }
+            console.log("After stop words removal: ", phrases);
+            
             var finalCommand=null;
             for (var i = 0; i < phrases.length; i++) { 
-                finalCommand = matchToCommandList(finalCommand,phrases[i]);
+                finalCommand = matchToCommandList(finalCommand,phrases[i],i);
             }
+            console.log(finalCommand);
+            if(finalCommand!=null && finalCommand[0][0]>0.5){
+                var index=finalCommand[1];
+                mismatchCount++;
+                if(!phrases[index].startsWith("computer")){
+                    phrases[index]="computer "+phrases[index];
+                }
+                annyang.trigger(phrases[index]);
 
-            if(finalCommand!=null){
-                annyang.trigger(finalCommand[1]);
+            }else{
+                mismatchCount=0;
             }
-            //performAction(inputStr);
-          
-            /*chrome.tabs.query({ active: true, windowType:"normal",currentWindow: true }, function(tabs) {
-                chrome.tabs.sendMessage(tabs[0].id,message , function(response) {
-                    console.log(response.message);
-                });
-            });*/
         });
-
-
-
     }
 
 });
 
-function matchToCommandList(finalCommand,phrase){
+
+
+function matchToCommandList(finalCommand,phrase,index){
     var lemmatizedList = commandsList.get(phrase);
     var maxLemmaValue=0;
     var command="";
@@ -206,8 +232,11 @@ function matchToCommandList(finalCommand,phrase){
             command=lemmatizedList[i];  
         }
     }
-    if(finalCommand==null || finalCommand[0]>command[0]){
-        return command;    
+    var comm=[];
+    comm[0]=command;
+    comm[1]=index;
+    if(finalCommand==null || finalCommand[0][0]<command[0]){
+        return comm;    
     }else{
         return finalCommand;
     }
@@ -216,14 +245,19 @@ function matchToCommandList(finalCommand,phrase){
 
 function performAction(mess){
 
+    mismatchCount=0;
     var commandStr = mess.command.split(" ");
     idenStr=mess.variable;
     console.log(commandStr);
     console.log(idenStr);
       
      var message = { action: commandStr[0],type1:commandStr[1],type2:commandStr[2] ,idenstr:idenStr};
-            chrome.tabs.query({ active: true,currentWindow: true }, function(tabs)             {
-                if((typeof tabs[0] === 'undefined') || (typeof tabs[0].title === 'undefined')){
+            chrome.tabs.query({ active: true,currentWindow: true }, function(tabs){
+               /* if(window.location.toString().includes(chrome.runtime.id)){
+                    console.log('VCAT options page..');
+                    return;
+
+                }else*/ if((typeof tabs[0] === 'undefined') || (typeof tabs[0].title === 'undefined')){
                     console.log('not a webpage');
                     return;
                 }else{
@@ -231,8 +265,13 @@ function performAction(mess){
                         console.log(response.message);
 
                         if(typeof response.message === 'element' ){
-                            tabDataStore['tab_1'].stack.push(element);
+                            tabDataStore['tab_'+tabs[0].id].stack.push(element);
                         }
+                        else if(response.message === 'success'){
+                            action = 'success';
+                             /*var m = new message('click number $','1');
+                             performAction(m);
+                        */}
                     });
                 }
             }); 
@@ -257,7 +296,7 @@ function callVcatService(url,elements){
             success: function(msg)
             {
                 console.log("Testcase created");
-            }//end function
+            }
         }
     );
 }

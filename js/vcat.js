@@ -55,6 +55,11 @@
          $(this).removeClass("btn-outline-primary");
          $(this).addClass("btn-primary");
      });
+
+     $("#executeBtn").click(function(){
+         var bgPage = chrome.extension.getBackgroundPage();
+         bgPage.callAnnyangCommand($("#command").val());
+     });
  });
 
  function 
