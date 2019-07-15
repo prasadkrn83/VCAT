@@ -1,11 +1,9 @@
-var commandList;
-
-
+var commandsList;
 var tabDataStore = {};
  var msg;   
  var mismatchCount=0; 
  var currentTabId;
-var generateTestcase=false;
+
 function callAnnyangCommand(command){
     msg=command;
    
@@ -18,69 +16,30 @@ function message(command,variable){
 chrome.runtime.onInstalled.addListener(function() {
     //this method is called when the extention is installed.
     //alert("installed");
-        commandList = FuzzySet();
-        commandList.add("select");
-        commandList.add("click");
-        commandList.add("scroll");
-        commandList.add("complete");
-        commandList.add("all");
-        commandList.add("link");
-        commandList.add("links");
-        commandList.add("button");
-        commandList.add("buttons");
-        commandList.add("number");
-        commandList.add("page");
-        commandList.add("up");
-        commandList.add("down");
-        commandList.add("test");
-        commandList.add("case");
-        commandList.add("text input");
-        commandList.add("text box");
-        commandList.add("textbox");
-        
-        
-        /*commandsList.add("select all links");
+        commandsList = FuzzySet();
+        commandsList.add("select all links");
         commandsList.add("select link");
         commandsList.add("click number");
         commandsList.add("select number");
         commandsList.add("click link");
         commandsList.add("scroll page up");
         commandsList.add("select page down");
-        commandsList.add("complete test case");*/
+        commandsList.add("complete test case");
 
 });
 
 chrome.windows.onCreated.addListener(function() {
 
     openOptions();
-        commandList = FuzzySet();
-        commandList.add("select");
-        commandList.add("click");
-        commandList.add("scroll");
-        commandList.add("complete");
-        commandList.add("all");
-        commandList.add("link");
-        commandList.add("links");
-        commandList.add("button");
-        commandList.add("buttons");
-        commandList.add("number");
-        commandList.add("page");
-        commandList.add("up");
-        commandList.add("down");
-        commandList.add("test");
-        commandList.add("case");
-        commandList.add("text input");
-        commandList.add("text box");
-        commandList.add("textbox");
-        
-        /*commandsList.add("select all links");
+        commandsList = FuzzySet();
+        commandsList.add("select all links");
         commandsList.add("select link");
         commandsList.add("click number");
         commandsList.add("select number");
         commandsList.add("click link");
         commandsList.add("scroll page up");
         commandsList.add("select page down");
-        commandsList.add("complete test case");*/
+        commandsList.add("complete test case");
 
 });
 
@@ -128,34 +87,15 @@ chrome.tabs.onHighlighted.addListener(function (tabs){
 });
 chrome.tabs.onCreated.addListener(function(tabs) {
 
-        commandList = FuzzySet();
-        commandList.add("select");
-        commandList.add("click");
-        commandList.add("scroll");
-        commandList.add("complete");
-        commandList.add("all");
-        commandList.add("link");
-        commandList.add("links");
-        commandList.add("button");
-        commandList.add("buttons");
-        commandList.add("number");
-        commandList.add("page");
-        commandList.add("up");
-        commandList.add("down");
-        commandList.add("test");
-        commandList.add("case");
-        commandList.add("text input");
-        commandList.add("text box");
-        commandList.add("textbox");
-        
-        /*commandsList.add("select all links");
+        commandsList = FuzzySet();
+        commandsList.add("select all links");
         commandsList.add("select link");
         commandsList.add("click number");
         commandsList.add("select number");
         commandsList.add("click link");
         commandsList.add("scroll page up");
         commandsList.add("select page down");
-        commandsList.add("complete test case");*/
+        commandsList.add("complete test case");
 
     let stack1 = new elementstack();
     let url1 = [];
@@ -167,134 +107,50 @@ chrome.tabs.onCreated.addListener(function(tabs) {
     if (annyang && !annyang.isListening()) {
      
         var commands = {
-            '(computer) generate test case': function() {
-                console.log('calling from command..generate test case ');
-               generateTestcase=true;
-            },
-            '(computer) select all *type': function(type) {
+            'computer select all *type': function(type) {
                 console.log('calling from command..select all '+type);
-               // var m = new message('select all $',type);
-                var cmd = new Command();
-                cmd.addCommandWord('select','command');
-                cmd.addCommandWord('all','command');
-                cmd.addCommandWord(matchToCommandList(type),'value');
-                performAction(cmd);
+                var m = new message('select all $',type);
+                performAction(m);
             },
-            '(computer) select link *desc': function(desc) {
+            'computer select link *desc': function(desc) {
                 console.log('calling from command..select link '+desc);
-                /*var m = new message('select link $',type);
-                performAction(m);*/
-                var cmd = new Command();
-                cmd.addCommandWord('select','command');
-                cmd.addCommandWord('link','command');
-                cmd.addCommandWord(desc,'value');
-                performAction(cmd);
+                var m = new message('select link $',type);
+                performAction(m);
             },
-            '(computer) select number *num': function(num){
+            'computer click number *num': function(num){
 
-                num=getnumber(num);
-                console.log('calling from command..select number '+num);
-                /*var m = new message('select number $',num);
-                performAction(m);*/
-                var cmd = new Command();
-                cmd.addCommandWord('select','command');
-                cmd.addCommandWord('number','command');
-                cmd.addCommandWord(num,'value');
-                performAction(cmd);
-                
-            },
-            '(computer) click number *num': function(num){
-
-                num=getnumber(num);
+                num=(num=='one')?1:num;
                 console.log('calling from command..click link '+num);
-                /*var m = new message('click number $',num);
-                performAction(m);*/
-                var cmd = new Command();
-                cmd.addCommandWord('click','command');
-                cmd.addCommandWord('number','command');
-                cmd.addCommandWord(num,'value');
-                performAction(cmd);
+                var m = new message('click number $',num);
+                performAction(m);
                 
             },
-             '(computer) click on *text': function(text){
+            'computer select number *num': function(num){
 
-                console.log('calling from command..click on '+text);
-                // var m = new message('click on $',text);
-                // performAction(m);
-                var cmd = new Command();
-                cmd.addCommandWord('click','command');
-                cmd.addCommandWord('on','command');
-                cmd.addCommandWord(text,'value');
-                performAction(cmd);
+                num=(num=='one')?1:num;
+                console.log('calling from command..select number '+num);
+                var m = new message('select number $',num);
+                performAction(m);
                 
-            },
-            
-            '(computer) click link *desc':function(desc){
+            }
+            ,
+            'computer click link *desc':function(desc){
                 console.log('calling from command..click link '+desc);
-                /*var m = new message('click link $',type);
-                performAction(m);*/
-                var cmd = new Command();
-                cmd.addCommandWord('click','command');
-                cmd.addCommandWord('link','command');
-                cmd.addCommandWord(desc,'value');
-                performAction(cmd);
+                var m = new message('click link $',type);
+                performAction(m);
             },
-            '(computer) scroll page *direction':function(direction){
+            'computer scroll page *direction':function(direction){
                 console.log('calling from command..scroll page '+direction);
-                /*var m = new message('scroll page $',direction);
-                performAction(m);*/
-                var cmd = new Command();
-                cmd.addCommandWord('scroll','command');
-                cmd.addCommandWord('page','command');
-                cmd.addCommandWord(direction,'value');
-                performAction(cmd);
+                var m = new message('scroll page $',direction);
+                performAction(m);
             },
-            '(computer) enter value *value':function(value){
+            'computer enter value *value':function(value){
               console.log('calling from command..enter value '+value);
-                /*var m = new message('enter value $',value);
-                performAction(m); */
-                var cmd = new Command();
-                cmd.addCommandWord('enter','command');
-                cmd.addCommandWord('value','command');
-                cmd.addCommandWord(formatDate(value),'value');
-                performAction(cmd); 
+                var m = new message('enter value $',value);
+                performAction(m);  
             },
-             '(computer) set text as *value':function(value){
-              console.log('calling from command..set text '+value);
-               /* var m = new message('set value $',value);
-                performAction(m);*/
-                var cmd = new Command();
-                cmd.addCommandWord('enter','command');
-                cmd.addCommandWord('value','command');
-                cmd.addCommandWord(formatDate(value),'value');
-                performAction(cmd);  
-            },
-             '(computer) set *inputname as *value':function(inputname,value){
-              console.log('calling from command..set input to '+value);
-                /*var m = new message('set value to number $',value);
-                performAction(m); */
-                var cmd = new Command();
-                cmd.addCommandWord('set','command');
-                cmd.addCommandWord(inputname,'value');
-                cmd.addCommandWord(value,'value');
-                performAction(cmd); 
-            },
-             '(computer) perform *inputname for *value':function(inputname,value){
-              console.log('calling from command..set input to '+value);
-                /*var m = new message('set value to number $',value);
-                performAction(m); */
-                var cmd = new Command();
-                cmd.addCommandWord('set','command');
-                cmd.addCommandWord(inputname,'value');
-                cmd.addCommandWord(value,'value');
-                performAction(cmd); 
-            },
-            '(computer) complete test case':function(){
+            'computer complete test case':function(){
               console.log('calling from command..complete test case ');
-              if(!generateTestcase){
-                return;
-
-              }
               var tabId=currentTabId;
 
               var url=tabDataStore['tab_' + tabId].url[0];
@@ -306,7 +162,7 @@ chrome.tabs.onCreated.addListener(function(tabs) {
                 url: url,
                 stack:stack
               };
-              generateTestcase=true;
+            
             }
 
         };
@@ -328,31 +184,18 @@ chrome.tabs.onCreated.addListener(function(tabs) {
 
             console.log("I think the user said: ", phrases[0]);
             var inputStr  = phrases[0];
-            var first="";
             console.log('called here...');
             console.log("But then again, it could be any of the following: ", phrases);
             console.log("No command matched yet..");
-            if(mismatchCount==1){
+            if(mismatchCount==3){
                 mismatchCount=0;
                 return;
             }
 
             for (var i = 0; i < phrases.length; i++) { 
                 phrases[i] = phrases[i].removeStopWords();
-                 var words = phrases[i].split(' ');
-                 if(words.length<3){
-                    continue;
-                 }
-                 words[0]=matchToCommandList(words[0]);
-                 words[1]=matchToCommandList(words[1]);
-                 words[2]=matchToCommandList(words[2]);
-                 var possibleCommand = words.join(' ');
-                 console.log("possible command= ",possibleCommand);
-                 mismatchCount++;
-                 annyang.trigger(possibleCommand);
-
             }
-           /* console.log("After stop words removal: ", phrases);
+            console.log("After stop words removal: ", phrases);
             
             var finalCommand=[];
             var receivedCommand;
@@ -401,25 +244,16 @@ chrome.tabs.onCreated.addListener(function(tabs) {
 
             }else{
                 mismatchCount=0;
-            }*/
+            }
         });
     }
 
 });
 
-function formatDate(str){
-
-try{
-    return $.datepicker.formatDate('mm/dd/yy',$.datepicker.parseDate( "dd MM yy", str ));
-}catch(err){
-    return str;
-}
-    
-}
 
 
 function matchToCommandList(phrase){
-    var lemmatizedList = commandList.get(phrase);
+    var lemmatizedList = commandsList.get(phrase);
     var maxLemmaValue=0;
     var command="";
 
@@ -441,8 +275,8 @@ function matchToCommandList(phrase){
     }else{
         return finalCommand;
     }*/
-    if(command[0]>0.4){
-        return command[1];
+    if(command[0]>0.5){
+        return command;
     }else{
         return null;
     }
@@ -466,19 +300,18 @@ function performCommandCorrection(command,phrases){
 
 }
 
-function performAction(command){
+function performAction(mess){
 
     mismatchCount=0;
-    /*var commandStr = mess.command.split(" ");
+    var commandStr = mess.command.split(" ");
     idenStr=mess.variable;
     console.log(commandStr);
-    */console.log(command.printList());
+    console.log(idenStr);
       
-     var message = { command: command/*Str[0],type1:commandStr[1],type2:commandStr[2] ,idenstr:idenStr*/};
+     var message = { action: commandStr[0],type1:commandStr[1],type2:commandStr[2] ,idenstr:idenStr};
             chrome.tabs.query({ active: true,currentWindow: true }, function(tabs){
-                /*if(window.location.toString().includes(chrome.runtime.id)){
+               /* if(window.location.toString().includes(chrome.runtime.id)){
                     console.log('VCAT options page..');
-                    //browser.runtime.getURL("options.html")
                     return;
 
                 }else*/ if((typeof tabs[0] === 'undefined') || (typeof tabs[0].title === 'undefined')){
@@ -523,40 +356,4 @@ function callVcatService(url,elements){
             }
         }
     );
-}
-
-function getnumber(num){
-
-    switch(num) {
-  case 'one':
-    return 1;
-    break;
-  case 'two':
-    return 2;
-    break;
-  case 'three':
-    return 3;
-    break;
-  case 'four':
-    return 4;
-    break;
-  case 'five':
-    return 5;
-    break;
-  case 'six':
-    return 6;
-    break;
-  case 'seven':
-    return 7;
-    break;
-  case 'eight':
-    return 8;
-    break;
-  case 'nine':
-    return 9;
-    break;
-  default:
-    return num;
-}
-
 }

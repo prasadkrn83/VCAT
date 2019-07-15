@@ -21,7 +21,7 @@ class elementstack {
         if(this.elements.length==0){
             return null;
         }
-        return this.elements[this.elements.length-1]
+        return this.elements[this.elements.length-1];
     } 
     isEmpty(){
         return this.elements.length==0;

@@ -1,4 +1,5 @@
 class webelement{
+	//todo try to use class name in the constructor and modify the code
 	constructor(){
 		this.elementtype= null;
 		this.elementxpath= null;
@@ -47,5 +48,10 @@ class webelement{
 			   "\n";
 	}
 
+    getClass() {
+
+        return this.constructor;
+
+    }
 
 }

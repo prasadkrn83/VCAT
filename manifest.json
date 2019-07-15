@@ -20,7 +20,11 @@
       "js/fuzzyset.js",
       "js/stopwordsremoval.js",
       "js/elementstack.js",
-      "js/webelement.js"
+      "js/webelement.js",
+      "js/Command.js",
+      "js/CommandWord.js",
+      "js/jquery-dateformat.js",
+      "js/jquery-ui.js"
     ],
     "persistent":false
     
@@ -30,7 +34,7 @@
       "matches": ["*://*/*"],
       "css": ["css/jquery.toast.min.css","css/content.css"],
       "js": ["js/jquery-3.3.1.min.js","js/jquery.toast.min.js","js/content.js","js/elementstack.js",
-      "js/webelement.js"]
+      "js/webelement.js","js/Command.js","js/CommandWord.js","js/jquery-dateformat.js","js/jquery-ui.js"]
     }
   ]
 }
