@@ -6,6 +6,10 @@ var tabDataStore = {};
  var mismatchCount=0; 
  var currentTabId;
 var generateTestcase=false;
+var start;
+var end;
+var performance = window.performance;
+
 function callAnnyangCommand(command){
     msg=command;
    
@@ -37,16 +41,9 @@ chrome.runtime.onInstalled.addListener(function() {
         commandList.add("text input");
         commandList.add("text box");
         commandList.add("textbox");
-        
-        
-        /*commandsList.add("select all links");
-        commandsList.add("select link");
-        commandsList.add("click number");
-        commandsList.add("select number");
-        commandsList.add("click link");
-        commandsList.add("scroll page up");
-        commandsList.add("select page down");
-        commandsList.add("complete test case");*/
+        commandList.add("generate");
+
+
 
 });
 
@@ -72,15 +69,9 @@ chrome.windows.onCreated.addListener(function() {
         commandList.add("text input");
         commandList.add("text box");
         commandList.add("textbox");
-        
-        /*commandsList.add("select all links");
-        commandsList.add("select link");
-        commandsList.add("click number");
-        commandsList.add("select number");
-        commandsList.add("click link");
-        commandsList.add("scroll page up");
-        commandsList.add("select page down");
-        commandsList.add("complete test case");*/
+        commandList.add("generate");
+
+      
 
 });
 
@@ -99,13 +90,7 @@ chrome.tabs.onRemoved.addListener(function (tabId) {
     delete tabDataStore['tab_' + tabId];
 });
 
-/*chrome.tabs.onUpdated.addListener(function (tabId , info) {
-  if (info.status === 'complete') {
-    tabDataStore['tab_' + tabId].url.push(tab.url);
-    annyang.trigger(msg);
-  }
 
-  });*/
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
    //alert(changeInfo.url);
@@ -115,13 +100,8 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
     if(tab.url==undefined){
         return;
     }
-    tabDataStore['tab_' + tabId].url.push(tab.url);
-    //annyang.trigger(msg);
-    /*var m = new message('select all $','links');
-    performAction(m);
-    var m = new message('click number $','1');
-    performAction(m);
-  */}
+        tabDataStore['tab_' + tabId].url.push(tab.url);
+    }
 }); 
 chrome.tabs.onHighlighted.addListener(function (tabs){
     currentTabId = tabs.tabIds[0];
@@ -147,15 +127,7 @@ chrome.tabs.onCreated.addListener(function(tabs) {
         commandList.add("text input");
         commandList.add("text box");
         commandList.add("textbox");
-        
-        /*commandsList.add("select all links");
-        commandsList.add("select link");
-        commandsList.add("click number");
-        commandsList.add("select number");
-        commandsList.add("click link");
-        commandsList.add("scroll page up");
-        commandsList.add("select page down");
-        commandsList.add("complete test case");*/
+        commandList.add("generate");
 
     let stack1 = new elementstack();
     let url1 = [];
@@ -170,6 +142,7 @@ chrome.tabs.onCreated.addListener(function(tabs) {
             '(computer) generate test case': function() {
                 console.log('calling from command..generate test case ');
                generateTestcase=true;
+               start=performance.now();
             },
             '(computer) select all *type': function(type) {
                 console.log('calling from command..select all '+type);
@@ -296,7 +269,7 @@ chrome.tabs.onCreated.addListener(function(tabs) {
 
               }
               var tabId=currentTabId;
-
+              end = performance.now();
               var url=tabDataStore['tab_' + tabId].url[0];
               var stack =tabDataStore['tab_' + tabId].stack;
               callVcatService(url,stack.getAllElements());
@@ -352,56 +325,7 @@ chrome.tabs.onCreated.addListener(function(tabs) {
                  annyang.trigger(possibleCommand);
 
             }
-           /* console.log("After stop words removal: ", phrases);
-            
-            var finalCommand=[];
-            var receivedCommand;
-            var count=0;
-            for (var i = 0; i < phrases.length; i++) { 
-                receivedCommand = matchToCommandList(phrases[i]);
-                if(receivedCommand!=null){
-                    finalCommand[count]=new Array(2);
-                    finalCommand[count][0]=receivedCommand;
-                    finalCommand[count][1]=i
-                    count++;
-                }
-            }
-            console.log(finalCommand);
-            if(finalCommand!=null && finalCommand.length>0){
-                var maxScore=0;
-                var selectedFinalCommand;
-                var selectedIndex=[];
-                var selectedPhrases=[];
-                for(var i = 0; i < finalCommand.length; i++) { 
-                    var comm = finalCommand[i][0];
-                    if(comm[0]>maxScore){
-                        maxScore=comm[0];
-                        selectedFinalCommand=comm[1];
-                    }
-                }
-
-                 for(var i = 0; i < finalCommand.length; i++) { 
-                    var comm = finalCommand[i][0];
-                    if(comm[0][1]!=selectedFinalCommand){
-                        continue;
-                    }else{
-                        selectedIndex.push(finalCommand[i][1]);
-                    }
-                 }
-                for(var i = 0; i < selectedIndex.length; i++) { 
-                    selectedPhrases.push(phrases[selectedIndex[i]]);
-                } 
-                var correctedCommand = performCommandCorrection(selectedFinalCommand,selectedPhrases);
-                console.log("correctedCommand= "+correctedCommand);
-                mismatchCount++;
-                if(!correctedCommand.startsWith("computer")){
-                    correctedCommand="computer "+correctedCommand;
-                }
-                annyang.trigger(correctedCommand);
-
-            }else{
-                mismatchCount=0;
-            }*/
+        
         });
     }
 
@@ -433,14 +357,7 @@ function matchToCommandList(phrase){
             command=lemmatizedList[i];  
         }
     }
-   /* var comm=[];
-    comm[0]=command;
-    comm[1]=index;
-    if(finalCommand==null || finalCommand[0][0]<command[0]){
-        return comm;    
-    }else{
-        return finalCommand;
-    }*/
+   
     if(command[0]>0.4){
         return command[1];
     }else{
@@ -469,10 +386,7 @@ function performCommandCorrection(command,phrases){
 function performAction(command){
 
     mismatchCount=0;
-    /*var commandStr = mess.command.split(" ");
-    idenStr=mess.variable;
-    console.log(commandStr);
-    */console.log(command.printList());
+    console.log(command.printList());
       
      var message = { command: command/*Str[0],type1:commandStr[1],type2:commandStr[2] ,idenstr:idenStr*/};
             chrome.tabs.query({ active: true,currentWindow: true }, function(tabs){
@@ -508,12 +422,15 @@ function callVcatService(url,elements){
     (
         {
             type: "POST",
-            url: "http://localhost:8080/vcat/testcase",
+            url: "http://localhost:8081/vcat/testcase",
             dataType:"json",
             contentType: 'application/json',
             data:JSON.stringify( 
             {               
                 url: url,
+                os:platform.os.family,
+                chromeversion:platform.version,
+                executiontime: (end-start),
                 elements
                 
             }),
@@ -527,36 +444,37 @@ function callVcatService(url,elements){
 
 function getnumber(num){
 
-    switch(num) {
-  case 'one':
-    return 1;
-    break;
-  case 'two':
-    return 2;
-    break;
-  case 'three':
-    return 3;
-    break;
-  case 'four':
-    return 4;
-    break;
-  case 'five':
-    return 5;
-    break;
-  case 'six':
-    return 6;
-    break;
-  case 'seven':
-    return 7;
-    break;
-  case 'eight':
-    return 8;
-    break;
-  case 'nine':
-    return 9;
-    break;
-  default:
-    return num;
-}
+        switch(num) {
+      case 'one':
+        return 1;
+        break;
+      case 'two':
+        return 2;
+        break;
+      case 'three':
+        return 3;
+        break;
+      case 'four':
+        return 4;
+        break;
+      case 'five':
+        return 5;
+        break;
+      case 'six':
+        return 6;
+        break;
+      case 'seven':
+        return 7;
+        break;
+      case 'eight':
+        return 8;
+        break;
+      case 'nine':
+        return 9;
+        break;
+      default:
+        return num;
+    }
 
 }
+
