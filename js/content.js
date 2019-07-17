@@ -16,17 +16,25 @@ $(document).ready(function() {
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
 
+        if(request.type!=null && request.type=='dialog'){
+          showGeneratedCode(request.message.testcase);
+          return;
+        } else if(request.type!=null && request.type=='toast'){
+          generateToast('Given Voice Command',request.message);
+          return;
+        }
         var commandType = request.command.head;
-        var selectedItem;
         var msg = "success";
+        var current = commandType; 
+        var cmd=current.value;
 
-        chrome.storage.local.get('selectedItem', function(result) {
-            selectedItem = result.selectedItem;
-        });
-
-
-        var i = 0;
-
+          // iterate to the end of the 
+          // list 
+          while (current.next) { 
+              cmd = cmd + " "+ current.next.value;
+              current=current.next; 
+          } 
+        generateToast('Given Voice Command',cmd);
         if (commandType.value == "select") {
             performSelectActionOnPage(request.command);
         } else if (commandType.value == "click") {
@@ -42,7 +50,21 @@ chrome.runtime.onMessage.addListener(
 
         sendResponse({ message: msg });
     });
+function showGeneratedCode(codeStr){
+  /*codeStr = codeStr.replace(/\;/g, ';<br>');
+  codeStr = codeStr.replace(/\{/g, '{<br>');
+  codeStr = codeStr.replace(/\}/g, '}<br>');
+*/
+   codeStr="<pre class='language-java'><code class='language-java'>"+codeStr+"</code></pre>";
+    $.jAlert({
+      'title': 'Generated Selenium Test Case',
+      'content': codeStr,
+//      'theme':'blue',
+      'size':'auto',
+      'closeOnClick': true
+  });
 
+}
 function performSelectActionOnPage(request) {
     var i = 0;
     var head = request.head;
@@ -61,8 +83,12 @@ function performSelectActionOnPage(request) {
             $("#f" + i).prepend("<legend class='legend-class'>" + i + "</legend>");
 
         });
-        generateToast("Select number *<br>Click number *<br>Open number * in new tab<br>Open number *" + identifier.value);
+        if(i>0){
+          generateToast("Next command suggestion","Select number *<br>Click number *<br>Set number to *" + identifier.value);
+        }else{
+          generateWarningToast("Failed to execute command","Failed to execute the command.<br>Retry!!","");
 
+        }
     } else if (commandType.value == "number") {
 
         var selectedIdentifier;
@@ -111,7 +137,14 @@ function performClickActionOnPage(request) {
         element.elementAction = 'click';
 
         msg = element;
-        $(identifier).children()[1].click();
+        try{
+            $(identifier).children()[1].click();
+             }
+      catch(err){
+        console.log(err);
+        generateWarningToast('Error','Failed to execute voice command!<br>Try again!');
+
+      }
         return msg;
     } else if (commandType.value == 'on') {
 
@@ -124,7 +157,14 @@ function performClickActionOnPage(request) {
             element.elementXpath = path;
             element.elementAction = 'click';
             console.log(path);
-            tag.click();
+            try{
+                tag.click();
+                 }
+              catch(err){
+                console.log(err);
+                generateWarningToast('Error','Failed to execute voice command!<br>Try again!');
+
+              }
             return element;
 
         }
@@ -225,18 +265,25 @@ function performEnterActionOnPage(request) {
     chrome.storage.local.get('selectedItem', function(result) {
         selectedItem = result.selectedItem;
         var item = $(selectedItem)[0];
-        $(selectedItem).eq(0).val(identifier.value);
-        var e = jQuery.Event("keypress");
-        e.which = 13; //choose the one you want
-        $(selectedItem).eq(0).keypress(function() {}).trigger(e)
-        let element = new webelement();
-        var path = getXPathTo(tag[0]);
+        try{
+            $(selectedItem).eq(0).val(identifier.value);
+            var e = jQuery.Event("keypress");
+            e.which = 13; //choose the one you want
+            $(selectedItem).eq(0).keypress(function() {}).trigger(e)
+            let element = new webelement();
+            var path = getXPathTo(tag[0]);
 
-        element.elementType = getIdentifiedElement($(selectedItem).eq(0));
-        element.elementXpath = path;
-        element.elementAction = 'set';
-        element.elementValue = identifier.value;
-        return element;
+            element.elementType = getIdentifiedElement($(selectedItem).eq(0));
+            element.elementXpath = path;
+            element.elementAction = 'set';
+            element.elementValue = identifier.value;
+            return element;
+             }
+          catch(err){
+            console.log(err);
+            generateWarningToast('Error','Failed to execute voice command!<br>Try again!');
+
+          }
     });
 
 }
@@ -250,7 +297,9 @@ function performSetActionOnPage(request) {
 
     var tag = getElementIdentifiedByLabel(identifier);
     if (tag !== null) {
+      try{
         tag.get(0).value = eleValue.value;
+
         var path = getXPathTo(tag[0]);
 
         let element = new webelement();
@@ -259,6 +308,13 @@ function performSetActionOnPage(request) {
         element.elementAction = 'set';
         element.elementValue = eleValue.value;
         return element;
+      }
+      catch(err){
+        console.log(err);
+        generateWarningToast('Error','Failed to execute voice command!<br>Try again!');
+
+      }
+        
     }
 
 }
@@ -291,12 +347,20 @@ function scrollSmoothToTop(isToTop) {
     }, 500);
 }
 
-function generateToast(message) {
+function generateToast(heading,message) {
     $.toast({
-        heading: 'Next Command suggestion',
+        heading: heading,
         text: message,
         hideAfter: 5000,
         icon: 'info'
+    });
+}
+function generateWarningToast(heading,message) {
+    $.toast({
+        heading: heading,
+        text: message,
+        hideAfter: 5000,
+        icon: 'warning'
     });
 }
 

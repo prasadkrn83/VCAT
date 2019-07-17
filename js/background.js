@@ -143,6 +143,11 @@ chrome.tabs.onCreated.addListener(function(tabs) {
                 console.log('calling from command..generate test case ');
                generateTestcase=true;
                start=performance.now();
+                chrome.tabs.query({ active: true,currentWindow: true }, function(tabs){
+
+                    var message = { type:'toast',message:'Generate Test Case'} 
+                    chrome.tabs.sendMessage(tabs[0].id,message);
+                });
             },
             '(computer) select all *type': function(type) {
                 console.log('calling from command..select all '+type);
@@ -265,9 +270,22 @@ chrome.tabs.onCreated.addListener(function(tabs) {
             '(computer) complete test case':function(){
               console.log('calling from command..complete test case ');
               if(!generateTestcase){
+                chrome.tabs.query({ active: true,currentWindow: true }, function(tabs){
+
+                    var message = { type:'toast',message:'Complete Test Case cannot be innitated without executing Generate Test Case!'} 
+                    chrome.tabs.sendMessage(tabs[0].id,message);
+                });
                 return;
 
               }
+
+              chrome.tabs.query({ active: true,currentWindow: true }, function(tabs){
+
+                    var message = { type:'toast',message:'Complete Test Case'} 
+                    chrome.tabs.sendMessage(tabs[0].id,message);
+                });
+
+              
               var tabId=currentTabId;
               end = performance.now();
               var url=tabDataStore['tab_' + tabId].url[0];
@@ -279,7 +297,7 @@ chrome.tabs.onCreated.addListener(function(tabs) {
                 url: url,
                 stack:stack
               };
-              generateTestcase=true;
+              generateTestcase=false;
             }
 
         };
@@ -417,12 +435,14 @@ function performAction(command){
 }
 
 function callVcatService(url,elements){
-
-     $.ajax
+    var url = "";
+    chrome.storage.sync.get('remoteserver', function(result) {
+        url=result.remoteserver;
+         $.ajax
     (
         {
             type: "POST",
-            url: "http://localhost:8081/vcat/testcase",
+            url: url,
             dataType:"json",
             contentType: 'application/json',
             data:JSON.stringify( 
@@ -436,10 +456,17 @@ function callVcatService(url,elements){
             }),
             success: function(msg)
             {
-                console.log("Testcase created");
+                chrome.tabs.query({ active: true,currentWindow: true }, function(tabs){
+
+                    var message = { type:'dialog',message:msg} 
+                    chrome.tabs.sendMessage(tabs[0].id,message);
+                    console.log("Testcase created");
+                });
             }
         }
     );
+   });
+    
 }
 
 function getnumber(num){

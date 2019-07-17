@@ -17,14 +17,14 @@
 <body>
     <div class="container">
         <div class="row">
-                 <label class="col-sm-2 col-form-label">Turn off VCAT</label>
-                 <input type="checkbox" checked data-toggle="toggle" data-onstyle="primary" data-offstyle="danger"/>
+                 <label class="col-sm-2 col-form-label">Turn  VCAT ON/OFF</label>
+                 <input type="checkbox" checked data-toggle="toggle" id="vcatonoff" data-onstyle="primary" data-offstyle="danger"/>
                  
 
         </div>
     </div>
      <div class="accordion" id="vcataccordion">
-        <div class="card">
+        <!-- <div class="card">
             <div class="card-header" id="headingOne">
                 <h5 class="mb-0">
         <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
@@ -68,7 +68,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
         <div class="card">
             <div class="card-header" id="headingTwo">
                 <h5 class="mb-0">
@@ -127,7 +127,7 @@
                                 <input type="text" class="form-control" id="remoteserver" placeholder="Remote Server End-point">
                             </div>
                             <div class="col-sm-2">
-                                <button type="submit" class="btn btn-outline-info">Save</button>
+                                <input type="button" id="remoteserverBtn" class="btn btn-outline-info" value="Save"/>
                             </div>
                         </div>
                     </form>

@@ -5,7 +5,11 @@
  }, function(e) {
      alert('not ok--' + e);
  });
+ var default_url='http://ec2-54-237-121-246.compute-1.amazonaws.com:8081/vcat/testcase';
 
+ chrome.storage.sync.set({'remoteserver':default_url}, function() {
+    onsole.log('Remote server set to : ' + default_url);
+    });
  $(document).ready(function() {
      var counter = 0;
      //var autoSaveList =             chrome.storage.sync.set({'autoSaveList':autoSaveList});
@@ -18,6 +22,11 @@
           
     });
 
+    chrome.storage.sync.get('remoteserver', function(result) {
+            $('#remoteserver').val(result.remoteserver);
+            console.log('Remote server set to : '+ result.remoteserver);
+     });
+
      $("#addrow").on("click", function() {
         
          counter++;
@@ -25,7 +34,13 @@
 
      });
 
+     $("#remoteserverBtn").on("click", function() {
+           chrome.storage.sync.set({'remoteserver':$('#remoteserver').val()}, function() {
+             console.log('Remote server set to : ' + $('#remoteserver').val());
+              });
+         
 
+     });
      $("#saveauto").on("click", function() {
           var autoSaveList = new Array();
           for (var i = 0; i <= counter; i++) {
