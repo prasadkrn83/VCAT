@@ -8,7 +8,7 @@
  var default_url='http://ec2-54-237-121-246.compute-1.amazonaws.com:8081/vcat/testcase';
 
  chrome.storage.sync.set({'remoteserver':default_url}, function() {
-    onsole.log('Remote server set to : ' + default_url);
+    console.log('Remote server set to : ' + default_url);
     });
  $(document).ready(function() {
      var counter = 0;
