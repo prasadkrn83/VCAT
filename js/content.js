@@ -45,6 +45,17 @@ chrome.runtime.onMessage.addListener(
             msg = performEnterActionOnPage(request.command);
         } else if (commandType.value == "set") {
             msg = performSetActionOnPage(request.command);
+        }else if (commandType.value == "open") {
+            msg = performOpenURL(request.command);
+        }else if(commandType.value=="refresh"){
+            refreshPage();
+        }else if(commandType.value=="back"){
+            goBack();
+        }else if(commandType.value=="forward"){
+            goForward();
+        }else{
+            generateWarningToast("Failed to execute command","Failed to execute the command.<br>Retry!!","");
+
         }
 
 
@@ -63,6 +74,17 @@ function showGeneratedCode(codeStr){
       'size':'auto',
       'closeOnClick': true
   });
+
+}
+
+function performOpenURL(request) {
+    var i = 0;
+    var head = request.head;
+    var commandType = head.next;
+    var identifier = commandType.next;
+    if(commandType.value==='url' && identifier.value!=null && identifier.value!=''){
+        openLinkinNewTab(identifier.value);
+    }
 
 }
 function performSelectActionOnPage(request) {
@@ -379,8 +401,13 @@ function scrollSmoothToBottomRight() {
 }
 
 function openLinkinNewTab(url) {
-    window.open(url, '_blank');
-}
+    //window.open(url, '_blank');
+    if(url.startsWith("www.")){
+        location.href="http://"+url;
+    }else{
+        location.href="http://www."+url;
+    }
+}   
 
 function closeWindow() {
     window.close();
@@ -397,6 +424,13 @@ function maximizeWindow(id) {
 function refreshPage() {
     location.reload();
 
+}
+function goBack(){
+    window.history.back();
+
+}
+function goForward(){
+      window.history.forward();
 }
 
 function addToBookmark(url, title) {

@@ -19,6 +19,8 @@ function message(command,variable){
     this.command=command;
     this.variable=variable;
 }
+
+
 chrome.runtime.onInstalled.addListener(function() {
     //this method is called when the extention is installed.
     //alert("installed");
@@ -106,6 +108,19 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 chrome.tabs.onHighlighted.addListener(function (tabs){
     currentTabId = tabs.tabIds[0];
 });
+
+chrome.runtime.onMessage.addListener( function(request,sender,sendResponse)
+{
+    if( request.vcat === "onoff" )
+    {
+        if(request.status){
+            annyang.resume();
+        }else{
+            annyang.pause();
+        }
+    }
+});
+
 chrome.tabs.onCreated.addListener(function(tabs) {
 
         commandList = FuzzySet();
@@ -226,6 +241,33 @@ chrome.tabs.onCreated.addListener(function(tabs) {
                 cmd.addCommandWord('page','command');
                 cmd.addCommandWord(direction,'value');
                 performAction(cmd);
+            }, 
+             '(computer) enter value hash *keyname':function(keyname){
+              console.log('calling from command..enter value hash '+keyname);
+                /*var m = new message('enter value $',value);
+                performAction(m); */
+
+                 chrome.storage.sync.get('autoSaveList', function(result) {
+                    var keyval=null;
+                    for (var i = 1; i<result.autoSaveList.length; i++) {
+                        if(result.autoSaveList[i].key==keyname){
+                            keyval=result.autoSaveList[i].value;
+                        }
+                    }
+                    if(keyval==null){
+                        var message = { type:'toast',message:'Unable to identify Key.<br>Check if the key is configured correctly in the VCAT options page'} 
+                    chrome.tabs.sendMessage(tabs[0].id,message);
+                        return;
+                    }
+
+                    var cmd = new Command();
+                    cmd.addCommandWord('enter','command');
+                    cmd.addCommandWord('value','command');
+                    cmd.addCommandWord(formatDate(keyval),'value');
+                    performAction(cmd);
+          
+                });
+                 
             },
             '(computer) enter value *value':function(value){
               console.log('calling from command..enter value '+value);
@@ -237,6 +279,7 @@ chrome.tabs.onCreated.addListener(function(tabs) {
                 cmd.addCommandWord(formatDate(value),'value');
                 performAction(cmd); 
             },
+          
              '(computer) set text as *value':function(value){
               console.log('calling from command..set text '+value);
                /* var m = new message('set value $',value);
@@ -267,6 +310,64 @@ chrome.tabs.onCreated.addListener(function(tabs) {
                 cmd.addCommandWord(value,'value');
                 performAction(cmd); 
             },
+            '(computer) open new tab':function(){
+              console.log('calling from command..open new tab ');
+               chrome.tabs.create({url:"about:blank"});  
+            },
+            '(computer) open *url':function(url){
+              console.log('calling from command..open url '+url);
+                /*var m = new message('set value to number $',value);
+                performAction(m); */
+                /*var cmd = new Command();
+                cmd.addCommandWord('open','command');
+                cmd.addCommandWord('url','command');
+                cmd.addCommandWord(getURL(url),'value');
+                performAction(cmd);*/ 
+                  chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+                         var tab = tabs[0];
+                        chrome.tabs.update(tab.id, {url: getURL(url)});
+              }); 
+            },
+
+            '(computer) refresh (page)(webpage)':function(){
+              console.log('calling from command..refresh ');
+                /*var m = new message('set value to number $',value);
+                performAction(m); */
+                var cmd = new Command();
+                cmd.addCommandWord('refresh','command');
+                performAction(cmd); 
+            },
+
+            '(computer) (go) back':function(){
+              console.log('calling from command..refresh ');
+                /*var m = new message('set value to number $',value);
+                performAction(m); */
+                var cmd = new Command();
+                cmd.addCommandWord('back','command');
+                performAction(cmd); 
+            },
+            '(computer) (go) forward':function(){
+              console.log('calling from command..refresh ');
+                /*var m = new message('set value to number $',value);
+                performAction(m); */
+                var cmd = new Command();
+                cmd.addCommandWord('forward','command');
+                performAction(cmd); 
+            },
+            '(computer) close tab':function(){
+              console.log('calling from command..close tab ');
+                /*var m = new message('set value to number $',value);
+                performAction(m); */
+                chrome.tabs.query({ active: true,currentWindow: true }, function(tabs){
+                    if((typeof tabs[0] === 'undefined') || (typeof tabs[0].title === 'undefined')){
+                        console.log('not a webpage');
+                        return;
+                    }else{
+                        chrome.tabs.remove(tabs[0].id);
+                    }
+                 });  
+            },
+              
             '(computer) complete test case':function(){
               console.log('calling from command..complete test case ');
               if(!generateTestcase){
@@ -278,6 +379,7 @@ chrome.tabs.onCreated.addListener(function(tabs) {
                 return;
 
               }
+
 
               chrome.tabs.query({ active: true,currentWindow: true }, function(tabs){
 
@@ -298,6 +400,40 @@ chrome.tabs.onCreated.addListener(function(tabs) {
                 stack:stack
               };
               generateTestcase=false;
+            },
+
+
+            '(computer) add row':function(){
+              console.log('calling from command..add row ');
+                   chrome.runtime.sendMessage({command:'addrow'});
+            },
+            '(computer) save':function(){
+              console.log('calling from command..save ');
+                   chrome.runtime.sendMessage({command:'save'});
+            },
+            '(computer) delete row *num':function(num){
+              console.log('calling from command..delete row '+num);
+                   chrome.runtime.sendMessage({command:'delete',number:getnumber(num)});
+            },
+             '(computer) set key (to) *val':function(val){
+              console.log('calling from command..set key to '+val);
+                   chrome.runtime.sendMessage({command:'key',key:val});
+            },
+            '(computer) set value (to) *val':function(val){
+              console.log('calling from command..set value '+val);
+                   chrome.runtime.sendMessage({command:'value',value:val});
+            },
+            '(computer) select key number *val':function(val){
+              console.log('calling from command..select key '+val);
+                   chrome.runtime.sendMessage({command:'selectkey',number:getnumber(val)});
+            },
+            '(computer) select value number *val':function(val){
+              console.log('calling from command..select value '+val);
+                   chrome.runtime.sendMessage({command:'selectvalue',number:getnumber(val)});
+            },
+            '(computer) expand auto complete configuration':function(){
+              console.log('calling from command..expand auto complete configuration');
+                   chrome.runtime.sendMessage({command:'expandautocompelte'});
             }
 
         };
@@ -503,5 +639,15 @@ function getnumber(num){
         return num;
     }
 
+}
+
+function getURL(url){
+    var urlStr =  url.replace("dot", ".");
+    if(urlStr.startsWith("www.")){
+        urlStr="http://"+urlStr;
+    }else{
+        urlStr="http://www."+urlStr;
+    }
+    return urlStr;
 }
 

@@ -1,5 +1,6 @@
  'use strict';
  debugger;
+ var selectedId=""
  navigator.webkitGetUserMedia({ audio: true }, function() {
 
  }, function(e) {
@@ -11,11 +12,25 @@
     console.log('Remote server set to : ' + default_url);
     });
  $(document).ready(function() {
+    /*$( "input[type='text']" ).change(function() {
+            // Check input( $( this ).val() ) for validity here
+        $(this).css('border-color', '');
+
+    });*/
      var counter = 0;
      //var autoSaveList =             chrome.storage.sync.set({'autoSaveList':autoSaveList});
+     
+    $('#vcatonoff').change(function() {
+        console.log('setting vcat to : '+$(this).prop('checked'));
+        turnVCATOnOff($(this).prop('checked'));     
+    });
 
+     
    chrome.storage.sync.get('autoSaveList', function(result) {
-    for (var i = 0; i<=result.autoSaveList.length; i++) {
+    if(result.autoSaveList==undefined){
+        return;
+    }
+    for (var i = 1; i<result.autoSaveList.length; i++) {
         addAutoSaveRow(result.autoSaveList[i].key,result.autoSaveList[i].value,i,false);
         counter++;
     }
@@ -45,7 +60,25 @@
           var autoSaveList = new Array();
           for (var i = 0; i <= counter; i++) {
             var name = $('#name'+i).val();
+
+            if(name==""){
+                $("#name"+i).css('border-color', 'red');
+                generateWarningToast("Error","Key cannot be empty");
+                return;
+            }
+            else {
+               $("#name"+i).css('border-color', '');
+            }
             var value= $('#value'+i).val();
+            if(value==""){
+                 $("#value"+i).css('border-color', 'red');
+                generateWarningToast("Error","Value cannot be empty");
+
+                return;
+            }
+            else {
+               $("#value"+i).css('border-color', '');
+            }
             var entry={key:name,value:value};
             autoSaveList.push(entry);
             } 
@@ -61,7 +94,8 @@
 
      $("table.order-list").on("click", ".ibtnDel", function(event) {
          $(this).closest("tr").remove();
-         counter -= 1
+         counter -= 1;
+         save();
      });
 
      $("h5 button").click(function() {
@@ -84,14 +118,72 @@
          var disabledStr=(isDisabled==true)?"disabled":"";
          var readOnlyStr=(isDisabled==true)?"":"readOnly";
 
+         cols += '<td>'+count+'</td>';
+         cols += '<td><input type="text" class="form-control" id="name' + count + '" value="'+key+'" /></td>';
+         cols += '<td><input type="text" class="form-control" id="value' + count + '" value="'+value+'" /></td>';
 
-         cols += '<td><input type="text" class="form-control" id="name' + count + '" value="'+key+'" '+readOnlyStr+'/></td>';
-         cols += '<td><input type="text" class="form-control" id="value' + count + '" value="'+value+'" '+readOnlyStr+'/></td>';
-
-         cols += '<td><input type="button" class="ibtnEdit btn btn-md  btn-success" '+disabledStr+' value="Edit"></td>';
-         cols += '<td><input type="button" class="ibtnDel btn btn-md btn-danger "  value="Delete"></td>';
+         //cols += '<td><input type="button" class="ibtnEdit btn btn-md  btn-success" '+disabledStr+' value="Edit"></td>';
+         cols += '<td><input type="button" class="ibtnDel btn btn-md btn-danger " id="delete'+count+'" value="Delete"></td>';
 
          newRow.append(cols);
          $("table.order-list").append(newRow);
      }
 
+function turnVCATOnOff(onoff) {
+    chrome.runtime.sendMessage({vcat: 'onoff',status:onoff});
+}
+
+function addRow(){
+    
+     console.log('triggering addrow');
+    $( "#addrow" ).trigger( "click" );
+
+}
+
+function deleteRow(num){
+    $( "#delete"+num ).trigger( "click" );
+
+}
+function save(){
+    console.log('triggering save');
+    $( "#saveauto" ).trigger( "click" );
+
+}
+chrome.runtime.onMessage.addListener( function(request,sender,sendResponse)
+{
+    if( request.command === "addrow" ){
+        addRow();
+        
+    }else if( request.command === "save" ){
+        save();
+        
+    }else if( request.command === "delete" ){
+        deleteRow(request.number);
+        
+    }else if( request.command === "key" ){
+        $( selectedId ).val(request.key);
+        
+    }else if( request.command === "value" ){
+                $( selectedId ).val(request.value);
+        
+    }else if( request.command === "selectkey" ){
+        $( "#name"+request.number ).select();
+        selectedId="#name"+request.number;
+        
+    }else if( request.command === "selectvalue" ){
+        $( "#value"+request.number ).select();
+        selectedId="#value"+request.number;
+    }
+    else if( request.command === "expandautocompelte" ){
+        $( "#collapseTwo").trigger( "click" );
+    }
+});
+
+function generateWarningToast(heading,message) {
+    $.toast({
+        heading: heading,
+        text: message,
+        hideAfter: 2000,
+        icon: 'warning'
+    });
+}
