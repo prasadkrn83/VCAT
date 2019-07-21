@@ -9,11 +9,7 @@ var generateTestcase=false;
 var start;
 var end;
 var performance = window.performance;
-
-function callAnnyangCommand(command){
-    msg=command;
-   
-}
+var studyUsername="default";
 
 function message(command,variable){
     this.command=command;
@@ -84,7 +80,7 @@ var hello = function(tag) {
 function openOptions() {
 chrome.runtime.openOptionsPage();
 
-    alert(commandsList);
+    
 }
 
 
@@ -118,6 +114,11 @@ chrome.runtime.onMessage.addListener( function(request,sender,sendResponse)
         }else{
             annyang.pause();
         }
+    }
+
+    else if( request.vcat === "setusername" )
+    {
+       studyUsername=request.username;
     }
 });
 
@@ -166,7 +167,6 @@ chrome.tabs.onCreated.addListener(function(tabs) {
             },
             '(computer) select all *type': function(type) {
                 console.log('calling from command..select all '+type);
-               // var m = new message('select all $',type);
                 var cmd = new Command();
                 cmd.addCommandWord('select','command');
                 cmd.addCommandWord('all','command');
@@ -175,20 +175,16 @@ chrome.tabs.onCreated.addListener(function(tabs) {
             },
             '(computer) select link *desc': function(desc) {
                 console.log('calling from command..select link '+desc);
-                /*var m = new message('select link $',type);
-                performAction(m);*/
                 var cmd = new Command();
                 cmd.addCommandWord('select','command');
                 cmd.addCommandWord('link','command');
                 cmd.addCommandWord(desc,'value');
                 performAction(cmd);
             },
-            '(computer) select number *num': function(num){
+            '(computer) select (the) number *num': function(num){
 
                 num=getnumber(num);
                 console.log('calling from command..select number '+num);
-                /*var m = new message('select number $',num);
-                performAction(m);*/
                 var cmd = new Command();
                 cmd.addCommandWord('select','command');
                 cmd.addCommandWord('number','command');
@@ -196,12 +192,10 @@ chrome.tabs.onCreated.addListener(function(tabs) {
                 performAction(cmd);
                 
             },
-            '(computer) click number *num': function(num){
+            '(computer) click (on) number *num': function(num){
 
                 num=getnumber(num);
                 console.log('calling from command..click link '+num);
-                /*var m = new message('click number $',num);
-                performAction(m);*/
                 var cmd = new Command();
                 cmd.addCommandWord('click','command');
                 cmd.addCommandWord('number','command');
@@ -212,8 +206,6 @@ chrome.tabs.onCreated.addListener(function(tabs) {
              '(computer) click on *text': function(text){
 
                 console.log('calling from command..click on '+text);
-                // var m = new message('click on $',text);
-                // performAction(m);
                 var cmd = new Command();
                 cmd.addCommandWord('click','command');
                 cmd.addCommandWord('on','command');
@@ -222,31 +214,24 @@ chrome.tabs.onCreated.addListener(function(tabs) {
                 
             },
             
-            '(computer) click link *desc':function(desc){
+            '(computer) click (on) (the) link *desc':function(desc){
                 console.log('calling from command..click link '+desc);
-                /*var m = new message('click link $',type);
-                performAction(m);*/
                 var cmd = new Command();
                 cmd.addCommandWord('click','command');
                 cmd.addCommandWord('link','command');
                 cmd.addCommandWord(desc,'value');
                 performAction(cmd);
             },
-            '(computer) scroll page *direction':function(direction){
+            '(computer) scroll page (to) *direction':function(direction){
                 console.log('calling from command..scroll page '+direction);
-                /*var m = new message('scroll page $',direction);
-                performAction(m);*/
                 var cmd = new Command();
                 cmd.addCommandWord('scroll','command');
                 cmd.addCommandWord('page','command');
                 cmd.addCommandWord(direction,'value');
                 performAction(cmd);
             }, 
-             '(computer) enter value hash *keyname':function(keyname){
+             '(computer) enter (the) value hash *keyname':function(keyname){
               console.log('calling from command..enter value hash '+keyname);
-                /*var m = new message('enter value $',value);
-                performAction(m); */
-
                  chrome.storage.sync.get('autoSaveList', function(result) {
                     var keyval=null;
                     for (var i = 1; i<result.autoSaveList.length; i++) {
@@ -269,10 +254,8 @@ chrome.tabs.onCreated.addListener(function(tabs) {
                 });
                  
             },
-            '(computer) enter value *value':function(value){
+            '(computer) enter (the) value *value':function(value){
               console.log('calling from command..enter value '+value);
-                /*var m = new message('enter value $',value);
-                performAction(m); */
                 var cmd = new Command();
                 cmd.addCommandWord('enter','command');
                 cmd.addCommandWord('value','command');
@@ -280,10 +263,8 @@ chrome.tabs.onCreated.addListener(function(tabs) {
                 performAction(cmd); 
             },
           
-             '(computer) set text as *value':function(value){
+             '(computer) set (the) text as *value':function(value){
               console.log('calling from command..set text '+value);
-               /* var m = new message('set value $',value);
-                performAction(m);*/
                 var cmd = new Command();
                 cmd.addCommandWord('enter','command');
                 cmd.addCommandWord('value','command');
@@ -292,8 +273,6 @@ chrome.tabs.onCreated.addListener(function(tabs) {
             },
              '(computer) set *inputname as *value':function(inputname,value){
               console.log('calling from command..set input to '+value);
-                /*var m = new message('set value to number $',value);
-                performAction(m); */
                 var cmd = new Command();
                 cmd.addCommandWord('set','command');
                 cmd.addCommandWord(inputname,'value');
@@ -302,8 +281,6 @@ chrome.tabs.onCreated.addListener(function(tabs) {
             },
              '(computer) perform *inputname for *value':function(inputname,value){
               console.log('calling from command..set input to '+value);
-                /*var m = new message('set value to number $',value);
-                performAction(m); */
                 var cmd = new Command();
                 cmd.addCommandWord('set','command');
                 cmd.addCommandWord(inputname,'value');
@@ -316,13 +293,6 @@ chrome.tabs.onCreated.addListener(function(tabs) {
             },
             '(computer) open *url':function(url){
               console.log('calling from command..open url '+url);
-                /*var m = new message('set value to number $',value);
-                performAction(m); */
-                /*var cmd = new Command();
-                cmd.addCommandWord('open','command');
-                cmd.addCommandWord('url','command');
-                cmd.addCommandWord(getURL(url),'value');
-                performAction(cmd);*/ 
                   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
                          var tab = tabs[0];
                         chrome.tabs.update(tab.id, {url: getURL(url)});
@@ -331,8 +301,6 @@ chrome.tabs.onCreated.addListener(function(tabs) {
 
             '(computer) refresh (page)(webpage)':function(){
               console.log('calling from command..refresh ');
-                /*var m = new message('set value to number $',value);
-                performAction(m); */
                 var cmd = new Command();
                 cmd.addCommandWord('refresh','command');
                 performAction(cmd); 
@@ -340,24 +308,18 @@ chrome.tabs.onCreated.addListener(function(tabs) {
 
             '(computer) (go) back':function(){
               console.log('calling from command..refresh ');
-                /*var m = new message('set value to number $',value);
-                performAction(m); */
                 var cmd = new Command();
                 cmd.addCommandWord('back','command');
                 performAction(cmd); 
             },
             '(computer) (go) forward':function(){
               console.log('calling from command..refresh ');
-                /*var m = new message('set value to number $',value);
-                performAction(m); */
                 var cmd = new Command();
                 cmd.addCommandWord('forward','command');
                 performAction(cmd); 
             },
             '(computer) close tab':function(){
               console.log('calling from command..close tab ');
-                /*var m = new message('set value to number $',value);
-                performAction(m); */
                 chrome.tabs.query({ active: true,currentWindow: true }, function(tabs){
                     if((typeof tabs[0] === 'undefined') || (typeof tabs[0].title === 'undefined')){
                         console.log('not a webpage');
@@ -366,6 +328,14 @@ chrome.tabs.onCreated.addListener(function(tabs) {
                         chrome.tabs.remove(tabs[0].id);
                     }
                  });  
+            },
+            '(computer) close message':function(){
+              console.log('calling from command..close message ');
+               var cmd = new Command();
+                cmd.addCommandWord('close','command');
+                cmd.addCommandWord('message','command');
+                performAction(cmd);
+                 
             },
               
             '(computer) complete test case':function(){
@@ -396,7 +366,7 @@ chrome.tabs.onCreated.addListener(function(tabs) {
               delete tabDataStore['tab_' + tabId];
               stack = new elementstack();
               tabDataStore['tab_' + tabId] = {
-                url: url,
+                url: [],
                 stack:stack
               };
               generateTestcase=false;
@@ -460,10 +430,11 @@ chrome.tabs.onCreated.addListener(function(tabs) {
             console.log("But then again, it could be any of the following: ", phrases);
             console.log("No command matched yet..");
             if(mismatchCount==1){
+                console.log("This is a retry of failed command... skipping..");
                 mismatchCount=0;
                 return;
             }
-
+            var possibleCommand = [];
             for (var i = 0; i < phrases.length; i++) { 
                 phrases[i] = phrases[i].removeStopWords();
                  var words = phrases[i].split(' ');
@@ -473,13 +444,27 @@ chrome.tabs.onCreated.addListener(function(tabs) {
                  words[0]=matchToCommandList(words[0]);
                  words[1]=matchToCommandList(words[1]);
                  words[2]=matchToCommandList(words[2]);
-                 var possibleCommand = words.join(' ');
+                 
+                 possibleCommand.push(words.join(' '));
                  console.log("possible command= ",possibleCommand);
+                
+            }
+            if (possibleCommand === undefined || possibleCommand.length == 0) {
+                    chrome.tabs.query({ active: true,currentWindow: true }, function(tabs){
+
+                    var message = { type:'error',message:'Unable to recognize command.'} 
+                    chrome.tabs.sendMessage(tabs[0].id,message);
+                    console.log("Unable to recognize command.");
+                });
+            }else{
                  mismatchCount++;
                  annyang.trigger(possibleCommand);
 
             }
-        
+            
+        });
+        annyang.addCallback('resultNoMatch', function(phrases) {
+            mismatchCount=0;
         });
     }
 
@@ -571,14 +556,14 @@ function performAction(command){
 }
 
 function callVcatService(url,elements){
-    var url = "";
+    var serviceUrl = "";
     chrome.storage.sync.get('remoteserver', function(result) {
-        url=result.remoteserver;
+        serviceUrl=result.remoteserver;
          $.ajax
     (
         {
             type: "POST",
-            url: url,
+            url: serviceUrl,
             dataType:"json",
             contentType: 'application/json',
             data:JSON.stringify( 
@@ -587,6 +572,7 @@ function callVcatService(url,elements){
                 os:platform.os.family,
                 chromeversion:platform.version,
                 executiontime: (end-start),
+                username:studyUsername,
                 elements
                 
             }),
@@ -597,6 +583,15 @@ function callVcatService(url,elements){
                     var message = { type:'dialog',message:msg} 
                     chrome.tabs.sendMessage(tabs[0].id,message);
                     console.log("Testcase created");
+                });
+            },
+            error :function(event, jqxhr, settings, thrownError){
+                console.log(jqxhr);
+                chrome.tabs.query({ active: true,currentWindow: true }, function(tabs){
+
+                    var message = { type:'error',message:'Failed to generate test case.<br>Check for correct remote server configurations in the VCAT options page'} 
+                    chrome.tabs.sendMessage(tabs[0].id,message);
+                    console.log("Testcase creation failed");
                 });
             }
         }

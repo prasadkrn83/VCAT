@@ -42,6 +42,14 @@
             console.log('Remote server set to : '+ result.remoteserver);
      });
 
+    $("#setusername").on("click",function(){
+        var username=$("#username").val();
+        if(username!=null && username!=""){
+            chrome.runtime.sendMessage({vcat: 'setusername',username:username});
+        }
+
+    });
+
      $("#addrow").on("click", function() {
         
          counter++;

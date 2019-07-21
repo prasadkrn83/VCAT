@@ -23,6 +23,10 @@ chrome.runtime.onMessage.addListener(
           generateToast('Given Voice Command',request.message);
           return;
         }
+        else if(request.type!=null && request.type=='error'){
+          generateWarningToast('Error',request.message);
+          return;
+        }
         var commandType = request.command.head;
         var msg = "success";
         var current = commandType; 
@@ -53,6 +57,8 @@ chrome.runtime.onMessage.addListener(
             goBack();
         }else if(commandType.value=="forward"){
             goForward();
+        }else if(commandType.value=="close"){
+            closeMessage();
         }else{
             generateWarningToast("Failed to execute command","Failed to execute the command.<br>Retry!!","");
 
@@ -171,7 +177,7 @@ function performClickActionOnPage(request) {
     } else if (commandType.value == 'on') {
 
         var tag = getElementIdentifiedByLabel(identifierStr);
-        if (tag !== null) {
+        if (tag!= undefined && tag !== null) {
             tag = tag.length > 0 ? tag[0] : tag;
             var path = getXPathTo(tag);
             let element = new webelement();
@@ -189,6 +195,8 @@ function performClickActionOnPage(request) {
               }
             return element;
 
+        }else{
+               generateWarningToast('Error','Failed to execute voice command!<br>Try again!');
         }
     }
     /* else{
@@ -544,4 +552,7 @@ function getXPathTo(element) {
         if (sibling.nodeType === 1 && sibling.localName === element.localName)
             ix++;
     }
+}
+function closeMessage(){
+     $('.jAlert').closeAlert(true);
 }
