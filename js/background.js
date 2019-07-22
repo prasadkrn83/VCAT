@@ -1,4 +1,4 @@
-var commandList;
+//var commandList;
 
 
 var tabDataStore = {};
@@ -18,28 +18,7 @@ function message(command,variable){
 
 
 chrome.runtime.onInstalled.addListener(function() {
-    //this method is called when the extention is installed.
-    //alert("installed");
-        commandList = FuzzySet();
-        commandList.add("select");
-        commandList.add("click");
-        commandList.add("scroll");
-        commandList.add("complete");
-        commandList.add("all");
-        commandList.add("link");
-        commandList.add("links");
-        commandList.add("button");
-        commandList.add("buttons");
-        commandList.add("number");
-        commandList.add("page");
-        commandList.add("up");
-        commandList.add("down");
-        commandList.add("test");
-        commandList.add("case");
-        commandList.add("text input");
-        commandList.add("text box");
-        commandList.add("textbox");
-        commandList.add("generate");
+    console.log("VCAT installed..");
 
 
 
@@ -48,39 +27,13 @@ chrome.runtime.onInstalled.addListener(function() {
 chrome.windows.onCreated.addListener(function() {
 
     openOptions();
-        commandList = FuzzySet();
-        commandList.add("select");
-        commandList.add("click");
-        commandList.add("scroll");
-        commandList.add("complete");
-        commandList.add("all");
-        commandList.add("link");
-        commandList.add("links");
-        commandList.add("button");
-        commandList.add("buttons");
-        commandList.add("number");
-        commandList.add("page");
-        commandList.add("up");
-        commandList.add("down");
-        commandList.add("test");
-        commandList.add("case");
-        commandList.add("text input");
-        commandList.add("text box");
-        commandList.add("textbox");
-        commandList.add("generate");
-
-      
 
 });
 
-var hello = function(tag) {
-    alert("select button");
-}
 
 function openOptions() {
-chrome.runtime.openOptionsPage();
+    chrome.runtime.openOptionsPage();
 
-    
 }
 
 
@@ -124,26 +77,7 @@ chrome.runtime.onMessage.addListener( function(request,sender,sendResponse)
 
 chrome.tabs.onCreated.addListener(function(tabs) {
 
-        commandList = FuzzySet();
-        commandList.add("select");
-        commandList.add("click");
-        commandList.add("scroll");
-        commandList.add("complete");
-        commandList.add("all");
-        commandList.add("link");
-        commandList.add("links");
-        commandList.add("button");
-        commandList.add("buttons");
-        commandList.add("number");
-        commandList.add("page");
-        commandList.add("up");
-        commandList.add("down");
-        commandList.add("test");
-        commandList.add("case");
-        commandList.add("text input");
-        commandList.add("text box");
-        commandList.add("textbox");
-        commandList.add("generate");
+  
 
     let stack1 = new elementstack();
     let url1 = [];
@@ -155,7 +89,9 @@ chrome.tabs.onCreated.addListener(function(tabs) {
     if (annyang && !annyang.isListening()) {
      
         var commands = {
-            '(computer) generate test case': function() {
+            //'(computer) generate|begin|start|create|new test case': function() {
+             '(computer) generate test case': function() {
+            
                 console.log('calling from command..generate test case ');
                generateTestcase=true;
                start=performance.now();
@@ -173,14 +109,14 @@ chrome.tabs.onCreated.addListener(function(tabs) {
                 cmd.addCommandWord(matchToCommandList(type),'value');
                 performAction(cmd);
             },
-            '(computer) select link *desc': function(desc) {
+            /*'(computer) select link *desc': function(desc) {
                 console.log('calling from command..select link '+desc);
                 var cmd = new Command();
                 cmd.addCommandWord('select','command');
                 cmd.addCommandWord('link','command');
                 cmd.addCommandWord(desc,'value');
                 performAction(cmd);
-            },
+            },*/
             '(computer) select (the) number *num': function(num){
 
                 num=getnumber(num);
@@ -191,6 +127,12 @@ chrome.tabs.onCreated.addListener(function(tabs) {
                 cmd.addCommandWord(num,'value');
                 performAction(cmd);
                 
+            },
+            '(computer) deselect': function() {
+                console.log('calling from command..deselect ');
+                var cmd = new Command();
+                cmd.addCommandWord('deselect','command');
+                performAction(cmd);
             },
             '(computer) click (on) number *num': function(num){
 
@@ -214,14 +156,14 @@ chrome.tabs.onCreated.addListener(function(tabs) {
                 
             },
             
-            '(computer) click (on) (the) link *desc':function(desc){
+         /*   '(computer) click (on) (the) link *desc':function(desc){
                 console.log('calling from command..click link '+desc);
                 var cmd = new Command();
                 cmd.addCommandWord('click','command');
                 cmd.addCommandWord('link','command');
                 cmd.addCommandWord(desc,'value');
                 performAction(cmd);
-            },
+            },*/
             '(computer) scroll page (to) *direction':function(direction){
                 console.log('calling from command..scroll page '+direction);
                 var cmd = new Command();
@@ -271,15 +213,29 @@ chrome.tabs.onCreated.addListener(function(tabs) {
                 cmd.addCommandWord(formatDate(value),'value');
                 performAction(cmd);  
             },
-             '(computer) set *inputname as *value':function(inputname,value){
+            '(computer) set *inputname as hash *value':function(inputname,value){
               console.log('calling from command..set input to '+value);
-                var cmd = new Command();
-                cmd.addCommandWord('set','command');
-                cmd.addCommandWord(inputname,'value');
-                cmd.addCommandWord(value,'value');
-                performAction(cmd); 
+              chrome.storage.sync.get('autoSaveList', function(result) {
+                    var keyval=null;
+                    for (var i = 1; i<result.autoSaveList.length; i++) {
+                        if(result.autoSaveList[i].key==keyname){
+                            keyval=result.autoSaveList[i].value;
+                        }
+                    }
+                    if(keyval==null){
+                        var message = { type:'toast',message:'Unable to identify Key.<br>Check if the key is configured correctly in the VCAT options page'} 
+                    chrome.tabs.sendMessage(tabs[0].id,message);
+                        return;
+                    }
+
+                    var cmd = new Command();
+                    cmd.addCommandWord('set','command');
+                    cmd.addCommandWord(inputname,'value');
+                    cmd.addCommandWord(keyval,'value');
+                    performAction(cmd); 
+                });
             },
-             '(computer) perform *inputname for *value':function(inputname,value){
+             '(computer) set *inputname as *value':function(inputname,value){
               console.log('calling from command..set input to '+value);
                 var cmd = new Command();
                 cmd.addCommandWord('set','command');
@@ -289,7 +245,7 @@ chrome.tabs.onCreated.addListener(function(tabs) {
             },
             '(computer) open new tab':function(){
               console.log('calling from command..open new tab ');
-               chrome.tabs.create({url:"about:blank"});  
+               chrome.tabs.create({url:"chrome://newtab"});  
             },
             '(computer) open *url':function(url){
               console.log('calling from command..open url '+url);
@@ -338,7 +294,9 @@ chrome.tabs.onCreated.addListener(function(tabs) {
                  
             },
               
-            '(computer) complete test case':function(){
+            //'(computer) complete|end|finish|stop test case':function(){
+             '(computer) complete test case':function(){
+            
               console.log('calling from command..complete test case ');
               if(!generateTestcase){
                 chrome.tabs.query({ active: true,currentWindow: true }, function(tabs){
@@ -429,7 +387,7 @@ chrome.tabs.onCreated.addListener(function(tabs) {
             console.log('called here...');
             console.log("But then again, it could be any of the following: ", phrases);
             console.log("No command matched yet..");
-            if(mismatchCount==1){
+            if(mismatchCount>1){
                 console.log("This is a retry of failed command... skipping..");
                 mismatchCount=0;
                 return;

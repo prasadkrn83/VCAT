@@ -25,7 +25,8 @@
       "js/CommandWord.js",
       "js/jquery-dateformat.js",
       "js/jquery-ui.js",
-      "js/platform.min.js"
+      "js/platform.min.js",
+      "js/CommandList.js"
     ],
     "persistent":false
     

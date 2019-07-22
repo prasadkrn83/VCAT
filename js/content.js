@@ -41,7 +41,15 @@ chrome.runtime.onMessage.addListener(
         generateToast('Given Voice Command',cmd);
         if (commandType.value == "select") {
             performSelectActionOnPage(request.command);
-        } else if (commandType.value == "click") {
+        }else if (commandType.value == "deselect") {
+            chrome.storage.local.get('selectedIdentifier', function(result) {
+                if(result.selectedIdentifier==undefined || result.selectedIdentifier==null){
+                    return;
+                }
+                var selectedIdentifier = result.selectedIdentifier;
+                performDeSelectActionOnPage(selectedIdentifier);
+            });
+        }else if (commandType.value == "click") {
             msg = performClickActionOnPage(request.command);
         } else if (commandType.value == "scroll") {
             performScrollActionOnPage(request.command);
@@ -100,23 +108,34 @@ function performSelectActionOnPage(request) {
     var identifier = commandType.next;
     var elementIdentifier = getIdentifierString(identifier.value);
     if (commandType.value == "all") {
-        chrome.storage.local.set({ 'selectedIdentifier': identifier.value }, function() {
-            console.log('Value is set to ' + identifier.value);
+            chrome.storage.local.get('selectedIdentifier', function(result) {
+                if(result.selectedIdentifier!=undefined || result.selectedIdentifier!=null){
+                    try{
+                        performDeSelectActionOnPage(result.selectedIdentifier);
+                    }catch(err){
+                        console.log(err);
+                    }
+                    chrome.storage.local.remove('selectedIdentifier');
+                }
+                
+            chrome.storage.local.set({ 'selectedIdentifier': identifier.value }, function() {
+                console.log('Value is set to ' + identifier.value);
+            });
+            $(elementIdentifier).each(function(index, item) {
+
+                i++;
+                //console.log(item);
+                $(item).wrap("<fieldset id='f" + i + "'class='fldset-class'></fieldset>");
+                $("#f" + i).prepend("<legend id='lg" + i + "'class='legend-class'>" + i + "</legend>");
+
+            });
+            if(i>0){
+              generateToast("Next command suggestion","Select number *<br>Click number *<br>Set number to *" + identifier.value);
+            }else{
+              generateWarningToast("Failed to execute command","Failed to execute the command.<br>Retry!!","");
+
+            }
         });
-        $(elementIdentifier).each(function(index, item) {
-
-            i++;
-            console.log(item);
-            $(item).wrap("<fieldset id='f" + i + "'class='fldset-class'></fieldset>");
-            $("#f" + i).prepend("<legend class='legend-class'>" + i + "</legend>");
-
-        });
-        if(i>0){
-          generateToast("Next command suggestion","Select number *<br>Click number *<br>Set number to *" + identifier.value);
-        }else{
-          generateWarningToast("Failed to execute command","Failed to execute the command.<br>Retry!!","");
-
-        }
     } else if (commandType.value == "number") {
 
         var selectedIdentifier;
@@ -124,6 +143,9 @@ function performSelectActionOnPage(request) {
             selectedIdentifier = result.selectedIdentifier;
             elementIdentifier = '#f' + identifier.value + ' ' + getIdentifierString(selectedIdentifier);
             console.log(elementIdentifier);
+            $('#f'+identifier.value).addClass('selected-fldset-class').removeClass('fldset-class');
+            $('#lg'+identifier.value).addClass('selected-legend-class').removeClass('legend-class');
+
             // var item=$(elementIdentifier)[0];
             chrome.storage.local.set({ "selectedItem": elementIdentifier }, function() {
                 console.log('Value is set to ' + elementIdentifier);
@@ -146,7 +168,23 @@ function performSelectActionOnPage(request) {
             });*/
 }
 
+function performDeSelectActionOnPage(selectedIdentifier){
+    try{
+        var elementIdentifier = getIdentifierString(selectedIdentifier);
+        i=1;
+        $(elementIdentifier).each(function(index, item) {
+            var identifier = '#f' + i;
+            var element = $(identifier + " " + $(identifier).children()[1].localName);
+            element[0].previousElementSibling.remove();
+            element.unwrap();
+            i++;
+        });
+    }catch(err){
+        console.log(err);
+    }
+    chrome.storage.local.remove('selectedIdentifier');
 
+}
 function performClickActionOnPage(request) {
     var head = request.head;
     var commandType = head.next;
@@ -470,15 +508,15 @@ function openNewBrowser(link) {
 function getIdentifierString(idenstr) {
     var identifier = "";
 
-    if (idenstr == "links") {
+    if (idenstr == "links" || idenstr == "link") {
         identifier = "a";
     } else if (idenstr == "drop down" || idenstr == "list") {
         identifier = "select";
     } else if (idenstr == "text input" || idenstr == "text box" || idenstr == "textbox") {
         identifier = "input:text";
-    } else if (idenstr == "radio button") {
+    } else if (idenstr == "radio button" || idenstr == "radio") {
         identifier = "input:radio";
-    } else if (idenstr == "check box") {
+    } else if (idenstr == "check box" || idenstr == "checkbox") {
         identifier = "input:checkbox";
     } else if (idenstr == "button") {
         identifier = "button";
@@ -532,8 +570,8 @@ function getPathToElement(elem, index) {
     element[0].previousElementSibling.remove();
     element.unwrap();
     var xpath = getXPathTo(element[0]);
-    element.wrap("<fieldset id='f" + index + "'class='fldset-class'></fieldset>");
-    $("#f" + index).prepend("<legend class='legend-class'>" + index.substring(1) + "</legend>");
+    element.wrap("<fieldset id='f" + index + "' class='fldset-class'></fieldset>");
+    $("#f" + index).prepend("<legend id='lg" + index + "' class='legend-class'>" + index + "</legend>");
     return xpath;
 }
 
