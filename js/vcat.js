@@ -37,6 +37,17 @@
           
     });
 
+    chrome.storage.sync.get('username', function(result) {
+        if(result.username==undefined){
+            return;
+        }else{
+            chrome.runtime.sendMessage({vcat: 'setusername',username:result.username});
+            $("#username").val(result.username);
+        }
+             
+    });
+
+
     chrome.storage.sync.get('remoteserver', function(result) {
             $('#remoteserver').val(result.remoteserver);
             console.log('Remote server set to : '+ result.remoteserver);
@@ -45,11 +56,21 @@
     $("#setusername").on("click",function(){
         var username=$("#username").val();
         if(username!=null && username!=""){
-            chrome.runtime.sendMessage({vcat: 'setusername',username:username});
-        }
+             $.get($('#remoteserver').val(),{ username: username }, function(data, status){
+                   if(data){
+                        generateWarningToast("Error","Username not available. Pick a different one!");
+
+                   }else{
+                        chrome.runtime.sendMessage({vcat: 'setusername',username:username});
+                        chrome.storage.sync.set({'username':username}, function() {
+                            console.log('username set to  : ' + username);
+                        });
+                    }
+
+                 });
+              }
 
     });
-
      $("#addrow").on("click", function() {
         
          counter++;
