@@ -217,14 +217,24 @@ chrome.tabs.onCreated.addListener(function(tabs) {
               console.log('calling from command..set input to '+value);
               chrome.storage.sync.get('autoSaveList', function(result) {
                     var keyval=null;
+                    if(result.autoSaveList==undefined){
+                        chrome.tabs.query({ active: true,currentWindow: true }, function(tabs){
+                             var message = { type:'toast',message:'Auto configuration not set.List is empty'} 
+                            chrome.tabs.sendMessage(tabs[0].id,message);
+                        });
+                    }
                     for (var i = 1; i<result.autoSaveList.length; i++) {
                         if(result.autoSaveList[i].key==keyname){
                             keyval=result.autoSaveList[i].value;
+                            break;
                         }
                     }
                     if(keyval==null){
-                        var message = { type:'toast',message:'Unable to identify Key.<br>Check if the key is configured correctly in the VCAT options page'} 
-                    chrome.tabs.sendMessage(tabs[0].id,message);
+                        chrome.tabs.query({ active: true,currentWindow: true }, function(tabs){
+
+                            var message = { type:'toast',message:'Unable to identify Key.<br>Check if the key is configured correctly in the VCAT options page'} 
+                            chrome.tabs.sendMessage(tabs[0].id,message);
+                        });
                         return;
                     }
 
