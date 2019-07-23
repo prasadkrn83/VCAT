@@ -224,7 +224,7 @@ chrome.tabs.onCreated.addListener(function(tabs) {
                         });
                     }
                     for (var i = 1; i<result.autoSaveList.length; i++) {
-                        if(result.autoSaveList[i].key==keyname){
+                        if(result.autoSaveList[i].key==value){
                             keyval=result.autoSaveList[i].value;
                             break;
                         }
@@ -383,6 +383,7 @@ chrome.tabs.onCreated.addListener(function(tabs) {
      
         annyang.addCallback('soundstart', function() {
             console.log('sound detected');
+            mismatchCount=0;
         });
 
       /*  annyang.addCallback('result',  function(phrases) {
@@ -399,7 +400,7 @@ chrome.tabs.onCreated.addListener(function(tabs) {
             console.log("No command matched yet..");
             if(mismatchCount>1){
                 console.log("This is a retry of failed command... skipping..");
-                mismatchCount=0;
+               // mismatchCount=0;
                 return;
             }
             var possibleCommand = [];
@@ -409,10 +410,9 @@ chrome.tabs.onCreated.addListener(function(tabs) {
                  if(words.length<3){
                     continue;
                  }
-                 words[0]=matchToCommandList(words[0]);
-                 words[1]=matchToCommandList(words[1]);
-                 words[2]=matchToCommandList(words[2]);
-                 
+                 for (var j = 0; j<words.length;j++) {
+                   words[j]=matchToCommandList(words[j]);
+                 }
                  possibleCommand.push(words.join(' '));
                  console.log("possible command= ",possibleCommand);
                 
@@ -468,7 +468,7 @@ function matchToCommandList(phrase){
     if(command[0]>0.4){
         return command[1];
     }else{
-        return null;
+        return phrase;
     }
     
 }

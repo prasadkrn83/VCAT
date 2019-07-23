@@ -267,7 +267,7 @@ function getElementIdentifiedByLabel(identifier) {
     }
     var tagName = tag.eq(0).prop('tagName');
     console.log(tag);
-    if (tagName == 'A') {
+    if (tagName == 'A' || tagName == 'BUTTON') {
         return tag;
     }
 
@@ -281,7 +281,7 @@ function getElementIdentifiedByLabel(identifier) {
     } else if (typeof attrId !== typeof undefined && attrId !== false && attrId !== "") {
         // ...
         tag = document.querySelector('[aria-labelledby ="' + attrId + '"]');
-        return tag;
+        return $(tag);
     }
 
     tag = $('input[value*="' + identifier.value + '" i]');
