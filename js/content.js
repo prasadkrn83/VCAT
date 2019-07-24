@@ -67,6 +67,8 @@ chrome.runtime.onMessage.addListener(
             goForward();
         }else if(commandType.value=="close"){
             closeMessage();
+        }else if(commandType.value=="submit"){
+            msg=performSubmitActionOnPage();
         }else{
             generateWarningToast("Failed to execute command","Failed to execute the command.<br>Retry!!","");
 
@@ -100,6 +102,27 @@ function performOpenURL(request) {
         openLinkinNewTab(identifier.value);
     }
 
+}
+function performSubmitActionOnPage(){
+
+        var form = $('form');
+
+        if(form.length== undefined || !form.length>0){
+            generateWarningToast("Failed to execute command","Unable to submit on page!!","");
+            return "success";
+        }
+
+        var path = getXPathTo(form[0]);
+        let element = new webelement();
+        element.elementType = 'submit';
+        element.elementXpath = path;
+        element.elementAction = 'submit';
+
+        msg = element;
+
+        form.submit();
+
+        return msg;
 }
 function performSelectActionOnPage(request) {
     var i = 0;
@@ -584,7 +607,7 @@ function getPathToElement(elem, index) {
 
 function getXPathTo(element) {
     if (element.id !== '' && !(element.id === undefined))
-        return '//*[@id="' + element.id + '"]';
+        return '//*[@id=\'' + element.id + '\']';
     if (element === document.body)
         return element.localName;
 

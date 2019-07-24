@@ -303,6 +303,13 @@ chrome.tabs.onCreated.addListener(function(tabs) {
                 performAction(cmd);
                  
             },
+            '(computer) submit':function(){
+              console.log('calling from command..close message ');
+               var cmd = new Command();
+                cmd.addCommandWord('submit','command');
+                performAction(cmd);
+                 
+            },
               
             //'(computer) complete|end|finish|stop test case':function(){
              '(computer) complete test case':function(){
@@ -318,26 +325,30 @@ chrome.tabs.onCreated.addListener(function(tabs) {
 
               }
 
-
-              chrome.tabs.query({ active: true,currentWindow: true }, function(tabs){
-
-                    var message = { type:'toast',message:'Complete Test Case'} 
-                    chrome.tabs.sendMessage(tabs[0].id,message);
-                });
-
-              
-              var tabId=currentTabId;
               end = performance.now();
+              var tabId=currentTabId;
               var url=tabDataStore['tab_' + tabId].url[0];
               var stack =tabDataStore['tab_' + tabId].stack;
               callVcatService(url,stack.getAllElements());
               delete tabDataStore['tab_' + tabId];
-              stack = new elementstack();
-              tabDataStore['tab_' + tabId] = {
-                url: [],
-                stack:stack
-              };
-              generateTestcase=false;
+              generateTestcase=false;      
+              chrome.tabs.query({ active: true,currentWindow: true }, function(tabs){
+
+                    var message = { type:'toast',message:'Complete Test Case'} 
+                    chrome.tabs.sendMessage(tabs[0].id,message);
+
+                    stack = new elementstack();
+                    var newurl=[];
+                    newurl.push(tabs[0].url);
+                    tabDataStore['tab_' + tabId] = {
+                      url: newurl,
+                      stack:stack
+                    };
+                });
+
+              
+              
+              
             },
 
 
