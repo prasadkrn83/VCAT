@@ -262,7 +262,14 @@ function getElementIdentifiedByLabel(identifier) {
     if (tag == typeof undefined || tag == null || tag.length == 0) {
         var cmd = "*:containsIN(" + identifier.value + "):not(:has(:containsIN('" + identifier.value + "')))";
         console.log(cmd);
-        tag = $(cmd).eq(0);
+        var tags = $(cmd);
+        for(k=0;k<tags.length;k++){
+            var tagName=tags.get(k).tagName;
+            if(tags.get(k).tagName=='A' || tags.get(k).tagName=="INPUT" || tags.get(k).tagName=="BUTTON" || tags.get(k).tagName=="SUBMIT"){
+                tag=tags.eq(k);
+                break;
+            }
+        }
 
     }
     var tagName = tag.eq(0).prop('tagName');
@@ -339,7 +346,7 @@ function performEnterActionOnPage(request) {
             e.which = 13; //choose the one you want
             $(selectedItem).eq(0).keypress(function() {}).trigger(e)
             let element = new webelement();
-            var path = getXPathTo(tag[0]);
+            var path = getXPathTo($(selectedItem).eq(0));
 
             element.elementType = getIdentifiedElement($(selectedItem).eq(0));
             element.elementXpath = path;
@@ -512,13 +519,13 @@ function getIdentifierString(idenstr) {
         identifier = "a";
     } else if (idenstr == "drop down" || idenstr == "list") {
         identifier = "select";
-    } else if (idenstr == "text input" || idenstr == "text box" || idenstr == "textbox") {
+    } else if (idenstr == "text input" || idenstr == "text box" || idenstr == "textbox" || idenstr == "textboxs"|| idenstr == "text boxs") {
         identifier = "input:text";
     } else if (idenstr == "radio button" || idenstr == "radio") {
         identifier = "input:radio";
     } else if (idenstr == "check box" || idenstr == "checkbox") {
         identifier = "input:checkbox";
-    } else if (idenstr == "button") {
+    } else if (idenstr == "button" || idenstr == "buttons") {
         identifier = "button";
     } else {
         identifier = idenstr;

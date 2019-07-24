@@ -378,7 +378,6 @@ chrome.tabs.onCreated.addListener(function(tabs) {
 
         annyang.addCommands(commands);
         annyang.debug();
-        //annyang.setLanguage('en-IN');
         annyang.start({ autoRestart: true ,continuous:false});
      
         annyang.addCallback('soundstart', function() {
