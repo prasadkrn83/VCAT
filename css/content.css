@@ -1,6 +1,8 @@
 .fldset-class{
-    border: 1.5px red solid;
+    /*border: 1.5px red solid;*/
      display:inline;
+         border: 0;
+
      /*padding:1.5px;*/
 }
 .legend-class{
@@ -10,9 +12,11 @@
 }
 
 .selected-fldset-class{
-    border: 1.5px green solid;
+    /*border: 1.5px green solid;*/
      display:inline;
-     padding:1.5px;
+         border: 0;
+
+     /*padding:1.5px;*/
 }
 .selected-legend-class{
     border: 1.5px green solid; 

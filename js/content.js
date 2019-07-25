@@ -1,5 +1,7 @@
 debugger;
 var scrollingElement;
+var currentFrom=null;
+
 $(document).ready(function() {
 
     scrollingElement = (document.scrollingElement || document.body)
@@ -105,8 +107,11 @@ function performOpenURL(request) {
 }
 function performSubmitActionOnPage(){
 
-        var form = $('form');
 
+        var form = $('form');
+        if(currentFrom!=null){
+            form=currentFrom;
+        }
         if(form.length== undefined || !form.length>0){
             generateWarningToast("Failed to execute command","Unable to submit on page!!","");
             return "success";
@@ -369,8 +374,8 @@ function performEnterActionOnPage(request) {
             e.which = 13; //choose the one you want
             $(selectedItem).eq(0).keypress(function() {}).trigger(e)
             let element = new webelement();
-            var path = getXPathTo($(selectedItem).eq(0));
-
+            var path = getXPathTo($(selectedItem).get(0));
+            currentFrom=$(selectedItem).closest("form");
             element.elementType = getIdentifiedElement($(selectedItem).eq(0));
             element.elementXpath = path;
             element.elementAction = 'set';
@@ -399,6 +404,7 @@ function performSetActionOnPage(request) {
         tag.get(0).value = eleValue.value;
 
         var path = getXPathTo(tag[0]);
+        currentFrom=$(tag).closest("form");
 
         let element = new webelement();
         element.elementType = getIdentifiedElement(tag.get(0).tagName, tag.get(0).getAttribute('type'));
