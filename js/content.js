@@ -175,9 +175,11 @@ function performSelectActionOnPage(request) {
             $('#lg'+identifier.value).addClass('selected-legend-class').removeClass('legend-class');
 
             // var item=$(elementIdentifier)[0];
-            chrome.storage.local.set({ "selectedItem": elementIdentifier }, function() {
+           /* chrome.storage.local.set({ "selectedItem": elementIdentifier }, function() {
                 console.log('Value is set to ' + elementIdentifier);
-            });
+            });*/
+            localStorage.setItem("selectedItem",elementIdentifier);
+
         });
         /*elementIdentifier='#f'+identifier.value+' '+getIdentifierString(selectedIdentifier);
         console.log(elementIdentifier);
@@ -364,10 +366,13 @@ function performEnterActionOnPage(request) {
     var commandType = head.next;
     var identifier = commandType.next;
 
-    var selectedItem;
-    chrome.storage.local.get('selectedItem', function(result) {
+    var selectedItem=localStorage.getItem("selectedItem");
+    if(selectedItem==undefined || selectedItem==null || selectedItem==""){
+        return null;
+    }
+   /* chrome.storage.local.get('selectedItem', function(result) {
         selectedItem = result.selectedItem;
-        var item = $(selectedItem)[0];
+   */     var item = $(selectedItem)[0];
         try{
             $(selectedItem).eq(0).val(identifier.value);
             var e = jQuery.Event("keypress");
@@ -387,7 +392,7 @@ function performEnterActionOnPage(request) {
             generateWarningToast('Error','Failed to execute voice command!<br>Try again!');
 
           }
-    });
+    //});
 
 }
 
