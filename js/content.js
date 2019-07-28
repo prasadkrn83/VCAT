@@ -381,7 +381,7 @@ function performEnterActionOnPage(request) {
             let element = new webelement();
             var path = getXPathTo($(selectedItem).get(0));
             currentFrom=$(selectedItem).closest("form");
-            element.elementType = getIdentifiedElement($(selectedItem).eq(0));
+            element.elementType = getIdentifiedElement($(selectedItem).get(0).tagName,$(selectedItem).get(0).getAttribute('type'));
             element.elementXpath = path;
             element.elementAction = 'set';
             element.elementValue = identifier.value;
@@ -571,7 +571,7 @@ function getIdentifierString(idenstr) {
 function getIdentifiedElement(idenstr, type) {
     var identifier = "";
 
-    if (idenstr == "a") {
+    if (idenstr == "a" || idenstr == "A") {
         identifier = "link";
     } else if (idenstr == "select") {
         identifier = "drop down";
@@ -586,7 +586,10 @@ function getIdentifiedElement(idenstr, type) {
         identifier = "check box";
     } else if (idenstr == "button") {
         identifier = "button";
-    } else {
+    }else if (idenstr == "submit" || idenstr == "SUBMIT") {
+        identifier = "submit";
+    }
+     else {
         identifier = idenstr;
     }
 

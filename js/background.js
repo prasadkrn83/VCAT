@@ -4,7 +4,7 @@
 var tabDataStore = {};
  var msg;   
  var mismatchCount=0; 
- var currentTabId;
+ var currentURL="";
 var generateTestcase=false;
 var start;
 var end;
@@ -52,6 +52,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
         return;
     }
         tabDataStore['tab_' + tabId].url.push(tab.url);
+
     }
 }); 
 chrome.tabs.onHighlighted.addListener(function (tabs){
@@ -329,24 +330,27 @@ chrome.tabs.onCreated.addListener(function(tabs) {
               var tabId=currentTabId;
               var url=tabDataStore['tab_' + tabId].url[0];
               var stack =tabDataStore['tab_' + tabId].stack;
-              callVcatService(url,stack.getAllElements());
+              var newurl=[];
+              newurl.push(tabDataStore['tab_' + tabId].url.pop());
               delete tabDataStore['tab_' + tabId];
-              generateTestcase=false;      
+
+              callVcatService(url,stack.getAllElements());
+
+              generateTestcase=false;    
+              stack = new elementstack();
+              tabDataStore['tab_' + tabId] = {
+                url: newurl,
+                stack:stack
+              };  
+              
               chrome.tabs.query({ active: true,currentWindow: true }, function(tabs){
 
                     var message = { type:'toast',message:'Complete Test Case'} 
                     chrome.tabs.sendMessage(tabs[0].id,message);
 
-                    stack = new elementstack();
-                    var newurl=[];
-                    newurl.push(tabs[0].url);
-                    tabDataStore['tab_' + tabId] = {
-                      url: newurl,
-                      stack:stack
-                    };
-                });
+                    
+              });
 
-              
               
               
             },
